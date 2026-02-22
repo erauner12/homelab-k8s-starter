@@ -11,6 +11,8 @@ resources:
   - standard-apps.yaml
   - low-media.yaml
 
-commonLabels:
-  homelab.dev/managed-by: argocd
-  homelab.dev/component: scheduling
+labels:
+  - pairs:
+      homelab.dev/managed-by: argocd
+      homelab.dev/component: scheduling
+    includeSelectors: true

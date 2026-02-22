@@ -9,6 +9,8 @@ resources:
   - deployment.yaml
   - service.yaml
 
-commonLabels:
-  app.kubernetes.io/managed-by: argocd
-  homelab.dev/managed-by: argocd
+labels:
+  - pairs:
+      app.kubernetes.io/managed-by: argocd
+      homelab.dev/managed-by: argocd
+    includeSelectors: true

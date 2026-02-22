@@ -4,5 +4,7 @@ kind: Kustomization
 resources:
   - ../../base
 
-commonLabels:
-  homelab.dev/cluster: home
+labels:
+  - pairs:
+      homelab.dev/cluster: home
+    includeSelectors: true
