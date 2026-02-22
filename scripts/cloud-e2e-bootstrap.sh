@@ -118,22 +118,15 @@ echo "[INFO] install argo cd (server-side)"
 kubectl create namespace argocd --dry-run=client -o yaml | kubectl apply -f -
 kubectl apply --server-side --force-conflicts -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 
-# Install SOPS key material and repo-server runtime tools (ksops/sops plugin wiring).
-kubectl -n argocd create secret generic sops-age \
-  --from-file=age.agekey="${SOPS_AGE_KEY_FILE}" \
-  --dry-run=client -o yaml | kubectl apply -f -
-kubectl apply -k "${ROOT_DIR}/infrastructure/argocd-runtime/overlays/erauner-cloud"
-kubectl -n argocd patch deployment argocd-repo-server \
-  --type strategic \
-  --patch-file "${ROOT_DIR}/infrastructure/argocd-runtime/base/repo-server-tools-ssa.yaml"
-kubectl -n argocd rollout status deploy/argocd-repo-server --timeout=600s
-
 kubectl -n argocd rollout status deploy/argocd-server --timeout=600s
 kubectl -n argocd rollout status statefulset/argocd-application-controller --timeout=600s
 
 echo "[INFO] apply cloud bootstrap"
 kubectl apply -k "${ROOT_DIR}/clusters/cloud/bootstrap"
 
+wait_app infra-app-of-apps
+wait_app sops-age-seed
+wait_app argocd-runtime
 wait_app operators-app-of-apps
 wait_app security-app-of-apps
 wait_app app-of-apps
