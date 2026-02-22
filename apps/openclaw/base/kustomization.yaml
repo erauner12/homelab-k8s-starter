@@ -5,3 +5,5 @@ namespace: ai
 resources:
   - deployment.yaml
   - service.yaml
+  - ingress-tailscale.yaml
+  - secret.gateway-token.yaml

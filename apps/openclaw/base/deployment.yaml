@@ -27,6 +27,12 @@ spec:
             - --port
             - "18789"
             - --allow-unconfigured
+          env:
+            - name: OPENCLAW_GATEWAY_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: openclaw-gateway-auth
+                  key: gateway-token
           ports:
             - containerPort: 18789
               name: http
