@@ -4,7 +4,7 @@ metadata:
   name: security-app-of-apps
   namespace: argocd
   annotations:
-    argocd.argoproj.io/sync-wave: "-110"
+    argocd.argoproj.io/sync-wave: "-180"
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:

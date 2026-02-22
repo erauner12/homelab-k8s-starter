@@ -4,3 +4,4 @@ resources:
   - app-of-apps.yaml
   - operators-app-of-apps.yaml
   - security-app-of-apps.yaml
+  - infra-app-of-apps.yaml
