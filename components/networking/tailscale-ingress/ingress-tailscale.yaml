@@ -1,16 +1,16 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: exposure-demo-tailscale
+  name: app-tailscale
   annotations:
     tailscale.com/proxy-class: "iptables-proxy"
 spec:
   ingressClassName: tailscale
   defaultBackend:
     service:
-      name: exposure-demo
+      name: app
       port:
-        number: 8080
+        number: 80
   tls:
     - hosts:
-        - exposure-demo
+        - app

@@ -4,5 +4,45 @@ namespace: demo
 resources:
   - deployment.yaml
   - service.yaml
-  - httproute-public.yaml
-  - ingress-tailscale.yaml
+components:
+  - ../../../components/networking/httproute-public
+  - ../../../components/networking/tailscale-ingress
+patches:
+  - target:
+      kind: HTTPRoute
+      name: app-public
+    patch: |-
+      - op: replace
+        path: /metadata/name
+        value: exposure-demo-public
+      - op: replace
+        path: /metadata/annotations/external-dns.alpha.kubernetes.io~1hostname
+        value: exposure-demo.erauner.cloud
+      - op: replace
+        path: /metadata/annotations/external-dns.alpha.kubernetes.io~1target
+        value: tunnel.erauner.cloud
+      - op: replace
+        path: /spec/hostnames/0
+        value: exposure-demo.erauner.cloud
+      - op: replace
+        path: /spec/rules/0/backendRefs/0/name
+        value: exposure-demo
+      - op: replace
+        path: /spec/rules/0/backendRefs/0/port
+        value: 8080
+  - target:
+      kind: Ingress
+      name: app-tailscale
+    patch: |-
+      - op: replace
+        path: /metadata/name
+        value: exposure-demo-tailscale
+      - op: replace
+        path: /spec/defaultBackend/service/name
+        value: exposure-demo
+      - op: replace
+        path: /spec/defaultBackend/service/port/number
+        value: 8080
+      - op: replace
+        path: /spec/tls/0/hosts/0
+        value: exposure-demo

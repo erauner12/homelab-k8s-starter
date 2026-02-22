@@ -5,5 +5,23 @@ namespace: ai
 resources:
   - deployment.yaml
   - service.yaml
-  - ingress-tailscale.yaml
   - secret.gateway-token.yaml
+components:
+  - ../../../components/networking/tailscale-ingress
+patches:
+  - target:
+      kind: Ingress
+      name: app-tailscale
+    patch: |-
+      - op: replace
+        path: /metadata/name
+        value: openclaw-tailscale
+      - op: replace
+        path: /spec/defaultBackend/service/name
+        value: openclaw
+      - op: replace
+        path: /spec/defaultBackend/service/port/number
+        value: 18789
+      - op: replace
+        path: /spec/tls/0/hosts/0
+        value: openclaw
