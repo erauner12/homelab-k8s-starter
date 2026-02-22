@@ -34,6 +34,7 @@ KUSTOMIZE_PATHS=(
   "security/namespaces/overlays/kind"
   "security/namespaces/overlays/erauner-cloud"
   "apps/poc-httpbin/base"
+  "apps/poc-exposure-patterns/base"
 )
 
 TMP_DIR="$(mktemp -d)"
