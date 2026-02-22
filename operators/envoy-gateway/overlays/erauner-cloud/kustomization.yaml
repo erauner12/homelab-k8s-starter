@@ -26,6 +26,5 @@ resources:
   - gateway-public.yaml
   - envoy-public-tunnel-service.yaml
   - clienttrafficpolicy-drop-envoy-external-address.yaml
-  - envoypatchpolicy-strip-x-envoy-external-address.yaml
   - origin-selfsigned-issuer.yaml
   - origin-certificate.yaml
