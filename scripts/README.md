@@ -12,6 +12,8 @@ This starter contains only ArgoCD-focused helper scripts.
 - `kind-validate.sh`: validate ArgoCD sync and pod readiness
 - `kind-down.sh`: delete local kind cluster
 - `argocd-create-deploy-key.sh`: creates repository deploy key and ArgoCD repo secret
+- `dns-status.sh`: list HTTPRoute and Tailscale DNS status for the active cluster
+- `openclaw-access.sh`: print OpenClaw URL and gateway token from Kubernetes Secret
 - `sops.sh`: helper utilities for SOPS file handling
 
 If additional scripts are needed, add them with ArgoCD-only scope.
