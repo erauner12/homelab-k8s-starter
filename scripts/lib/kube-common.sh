@@ -46,7 +46,9 @@ kube_common_repo_contexts() {
   all_contexts="$(kubectl config get-contexts -o name 2>/dev/null || true)"
 
   {
-    printf '%s\n' "$all_contexts" | awk -v pfx="$local_prefix" 'pfx != "" && $0 ~ ("^" pfx "($|-)" ) {print}'
+    # Default to canonical local contexts only (starter-talos, starter-talos-2, etc).
+    # This avoids surfacing stale e2e contexts in everyday workflows.
+    printf '%s\n' "$all_contexts" | awk -v pfx="$local_prefix" 'pfx != "" && $0 ~ ("^" pfx "(-[0-9]+)?$" ) {print}'
     printf '%s\n' "$all_contexts" | while IFS= read -r ctx; do
       [[ -z "$ctx" ]] && continue
       if printf '%s\n' "$cloud_contexts" | grep -Fxq "$ctx"; then

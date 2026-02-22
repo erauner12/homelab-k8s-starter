@@ -28,7 +28,6 @@ KUSTOMIZE_PATHS=(
   "clusters/cloud/argocd/security"
   "clusters/cloud/argocd/apps"
   "operators/cert-manager/overlays/erauner-cloud"
-  "operators/external-secrets/overlays/erauner-cloud"
   "operators/envoy-gateway/overlays/erauner-cloud"
   "infrastructure/cloudflared-apps/overlays/erauner-cloud"
   "security/namespaces/overlays/erauner-cloud/cloud-minimal"
@@ -41,7 +40,6 @@ TMP_DIR="$(mktemp -d)"
 ALL_MANIFESTS="${TMP_DIR}/all-manifests.yaml"
 GENERATED_CHART_DIRS=(
   "operators/cert-manager/base/charts"
-  "operators/external-secrets/base/charts"
   "operators/envoy-gateway/overlays/erauner-cloud/charts"
 )
 

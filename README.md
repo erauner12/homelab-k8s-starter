@@ -7,7 +7,6 @@ This repository intentionally uses ArgoCD only.
 ## Included baseline
 - ArgoCD app-of-apps bootstrap manifests
 - cert-manager
-- external-secrets
 - envoy-gateway (cloud profile)
 - security namespace baseline
 - demo app

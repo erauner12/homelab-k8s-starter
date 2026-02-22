@@ -7,7 +7,6 @@ apps_required:
 apps_optional:
   - security-namespaces
   - cert-manager
-  - external-secrets
   - httpbin
 
 namespaces_required:
@@ -15,7 +14,6 @@ namespaces_required:
 
 namespaces_optional:
   - cert-manager
-  - external-secrets
   - demo
 
 pods_required_namespaces:
@@ -23,5 +21,4 @@ pods_required_namespaces:
 
 pods_optional_namespaces:
   - cert-manager
-  - external-secrets
   - demo

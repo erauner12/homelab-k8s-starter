@@ -30,7 +30,6 @@ cluster:
               - cert-manager
               - cilium
               - cilium-test
-              - external-secrets
               - network
               - tailscale
               - envoy-gateway-system

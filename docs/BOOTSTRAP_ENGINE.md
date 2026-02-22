@@ -26,6 +26,5 @@ This starter bootstraps ArgoCD app-of-apps on an existing Kubernetes cluster.
 ```bash
 kubectl -n argocd get applications
 kubectl get pods -n cert-manager
-kubectl get pods -n external-secrets
 kubectl get pods -n tailscale
 ```

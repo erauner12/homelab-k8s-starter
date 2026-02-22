@@ -21,6 +21,7 @@ TALOS_CREATE_WAIT="${TALOS_CREATE_WAIT:-false}"
 ALLOW_MULTI_CLUSTER="${ALLOW_MULTI_CLUSTER:-false}"
 ALLOW_UNSUPPORTED_LONGHORN_DOCKER="${ALLOW_UNSUPPORTED_LONGHORN_DOCKER:-false}"
 ALLOW_OTHER_K8S_CONTAINERS="${ALLOW_OTHER_K8S_CONTAINERS:-false}"
+PRUNE_STALE_E2E_CONTEXTS="${PRUNE_STALE_E2E_CONTEXTS:-true}"
 
 require() {
   command -v "$1" >/dev/null 2>&1 || { echo "[ERR] missing tool: $1"; exit 1; }
@@ -30,6 +31,26 @@ require talosctl
 require kubectl
 if [[ "${PROVISIONER}" == "docker" ]]; then
   require docker
+fi
+
+prune_stale_e2e_contexts() {
+  local stale
+  stale="$(kubectl config get-contexts -o name 2>/dev/null | rg "^${CLUSTER_NAME}-e2e[0-9]*$" || true)"
+  if [[ -z "${stale}" ]]; then
+    return 0
+  fi
+  echo "[INFO] pruning stale kube contexts:"
+  printf '%s\n' "${stale}" | sed 's/^/  - /'
+  while IFS= read -r ctx; do
+    [[ -z "${ctx}" ]] && continue
+    kubectl config delete-context "${ctx}" >/dev/null 2>&1 || true
+    kubectl config unset "users.${ctx}" >/dev/null 2>&1 || true
+    kubectl config unset "clusters.${ctx}" >/dev/null 2>&1 || true
+  done <<< "${stale}"
+}
+
+if [[ "${PRUNE_STALE_E2E_CONTEXTS}" == "true" ]]; then
+  prune_stale_e2e_contexts
 fi
 
 mkdir -p "${TALOS_STATE_DIR}" "$(dirname "${TALOSCONFIG_PATH}")"

@@ -5,7 +5,6 @@ apps_required:
   - security-app-of-apps
   - security-namespaces
   - cert-manager
-  - external-secrets
   - envoy-gateway
   - httpbin
 
@@ -23,7 +22,6 @@ apps_optional:
 namespaces_required:
   - argocd
   - cert-manager
-  - external-secrets
   - demo
 
 namespaces_optional:
@@ -33,7 +31,6 @@ namespaces_optional:
 
 pods_required_namespaces:
   - cert-manager
-  - external-secrets
   - demo
 
 pods_optional_namespaces:

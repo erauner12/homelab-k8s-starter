@@ -3,6 +3,5 @@ kind: Kustomization
 resources:
   - cert-manager-app.yaml
   - external-dns-app.yaml
-  - external-secrets-app.yaml
   - envoy-gateway-app.yaml
   - tailscale-operator-app.yaml

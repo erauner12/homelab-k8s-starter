@@ -29,7 +29,6 @@ TMP_DIR="$(mktemp -d)"
 ALL_MANIFESTS="${TMP_DIR}/all-manifests.yaml"
 GENERATED_CHART_DIRS=(
   "operators/cert-manager/base/charts"
-  "operators/external-secrets/base/charts"
   "operators/envoy-gateway/overlays/erauner-cloud/charts"
 )
 
