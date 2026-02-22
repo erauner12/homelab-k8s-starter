@@ -1,0 +1,21 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: security-namespaces
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-120"
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/erauner12/homelab-k8s-starter.git
+    targetRevision: master
+    path: security/namespaces/overlays/kind
+  destination:
+    server: https://kubernetes.default.svc
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=false

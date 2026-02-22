@@ -1,28 +1,30 @@
 # Homelab Kubernetes Starter (ArgoCD Only)
 
-A minimal, shareable GitOps starter for a single-node homelab Kubernetes cluster.
+A minimal, shareable GitOps starter for homelab Kubernetes clusters.
 
 This repository intentionally uses ArgoCD only.
 
 ## Included baseline
-- ArgoCD app-of-apps bootstrap
+- ArgoCD app-of-apps bootstrap manifests
 - cert-manager
 - external-secrets
-- tailscale-operator
-- external-dns
-- longhorn day-2 configuration
-- security namespace and policy baseline
+- security namespace baseline
 - demo app
+- local kind smoke-test profile
+- optional Rackspace Spot Terraform pattern
 
-## Quick start
-1. Fork this repository.
-2. Clone your fork.
-3. Update starter placeholders (repo URL, domain, secrets).
-4. Run preflight checks:
-   - `./scripts/pre-bootstrap-test.sh`
-5. Bootstrap:
-   - `./bin/homelabctl bootstrap plan`
-   - `./bin/homelabctl bootstrap run --kubeconfig ~/.kube/config`
+## Local test workflow (recommended first)
+1. Create kind cluster and deploy starter profile:
+   - `./scripts/kind-up.sh`
+2. Check status:
+   - `./scripts/kind-status.sh`
+3. Tear down:
+   - `./scripts/kind-down.sh`
+
+See `docs/KIND.md` for details.
+
+## Cloud/bootstrap workflow
+Use the cluster app-of-apps manifests under `clusters/` and update repo URLs, domain values, and secrets for your environment.
 
 ## Notes
 - Keep secret files as templates only in Git.

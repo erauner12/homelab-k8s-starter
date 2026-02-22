@@ -15,3 +15,18 @@ tasks:
     desc: Run bootstrap
     cmds:
       - ./bin/homelabctl bootstrap run --kubeconfig ~/.kube/config
+
+  kind:up:
+    desc: Create local kind cluster and deploy starter profile
+    cmds:
+      - ./scripts/kind-up.sh
+
+  kind:status:
+    desc: Show status of local kind deployment
+    cmds:
+      - ./scripts/kind-status.sh
+
+  kind:down:
+    desc: Delete local kind cluster
+    cmds:
+      - ./scripts/kind-down.sh
