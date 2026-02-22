@@ -4,4 +4,5 @@ resources:
   - cert-manager-app.yaml
   - external-dns-app.yaml
   - envoy-gateway-app.yaml
+  - cloudflared-apps-app.yaml
   - tailscale-operator-app.yaml

@@ -117,8 +117,8 @@ if [[ "${RUN_OPTIONAL}" == "true" ]]; then
   echo "[INFO] re-run shared smoke checks after optional app apply"
   "${ROOT_DIR}/smoke/scripts/run.sh" --profile cloud
 
-  kubectl -n network wait --for=condition=Ready pod -l app.kubernetes.io/name=cloudflared --timeout=600s
-  kubectl -n network get pods -l app.kubernetes.io/name=cloudflared -o wide
+  kubectl -n network wait --for=condition=Ready pod -l app=cloudflared-apps --timeout=600s
+  kubectl -n network get pods -l app=cloudflared-apps -o wide
   kubectl -n demo get deploy,svc,httproute,ingress
   kubectl -n argocd get app cloudflared-apps exposure-demo -o wide
 
