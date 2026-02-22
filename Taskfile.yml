@@ -6,6 +6,11 @@ tasks:
     cmds:
       - ./scripts/pre-bootstrap-test.sh
 
+  static:validate:
+    desc: Render and schema-validate key kustomize targets
+    cmds:
+      - ./scripts/static-validate.sh
+
   bootstrap:plan:
     desc: Show bootstrap plan
     cmds:

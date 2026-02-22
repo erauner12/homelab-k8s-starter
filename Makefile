@@ -1,10 +1,13 @@
-.PHONY: help preflight plan bootstrap kind-up kind-status kind-validate kind-down
+.PHONY: help preflight static-validate plan bootstrap kind-up kind-status kind-validate kind-down
 
 help:
-	@echo "Targets: preflight, plan, bootstrap, kind-up, kind-status, kind-validate, kind-down"
+	@echo "Targets: preflight, static-validate, plan, bootstrap, kind-up, kind-status, kind-validate, kind-down"
 
 preflight:
 	@./scripts/pre-bootstrap-test.sh
+
+static-validate:
+	@./scripts/static-validate.sh
 
 plan:
 	@./bin/homelabctl bootstrap plan

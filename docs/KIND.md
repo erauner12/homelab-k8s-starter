@@ -12,7 +12,18 @@ This repository includes a local `kind` profile for smoke testing the starter st
 ## Prerequisites
 - kind
 - kubectl
+- kustomize
+- kubeconform
+- helm (Helm 3 for full static coverage)
 - internet access to pull container images and ArgoCD install manifest
+
+## Static validation (run first)
+```bash
+./scripts/static-validate.sh
+```
+
+This checks that key kustomize targets render successfully and validates generated manifests with `kubeconform`.
+If Helm 3 is not available, Helm-backed targets are skipped with warnings.
 
 ## Start cluster and deploy
 ```bash

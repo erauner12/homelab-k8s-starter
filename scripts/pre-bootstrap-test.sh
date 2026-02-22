@@ -6,7 +6,7 @@ readonly GREEN='\033[0;32m'
 readonly YELLOW='\033[1;33m'
 readonly NC='\033[0m'
 
-readonly REQUIRED_TOOLS=(kubectl age ssh-keygen gh jq)
+readonly REQUIRED_TOOLS=(kubectl kustomize kubeconform helm age ssh-keygen gh jq)
 readonly DEFAULT_SSH_KEY="$HOME/.ssh/id_ed25519"
 readonly DEFAULT_AGE_KEY="$HOME/.config/sops/age/keys.txt"
 
