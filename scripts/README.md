@@ -18,6 +18,8 @@ This starter contains only ArgoCD-focused helper scripts.
     - `BOOTSTRAP_PROFILE=erauner-colos-no-longhorn` (always no-longhorn bootstrap)
 - `talos/local-status.sh`: show Talos cluster and kube context status
 - `talos/local-down.sh`: destroy local Talos cluster
+- `argocd-get-admin.sh`: print ArgoCD admin credentials for the selected cluster context
+- `argocd-ui.sh`: port-forward ArgoCD UI and print admin credentials
 - `argocd-create-deploy-key.sh`: creates repository deploy key and ArgoCD repo secret
 - `dns-status.sh`: list HTTPRoute and Tailscale DNS status for the active cluster
 - `openclaw-access.sh`: compatibility wrapper to `scripts/openclaw/access.sh`

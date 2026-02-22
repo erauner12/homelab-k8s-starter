@@ -66,6 +66,16 @@ tasks:
     cmds:
       - ./scripts/talos/local-down.sh
 
+  argocd:get-admin:
+    desc: Print ArgoCD admin credentials for the active cluster context
+    cmds:
+      - ./scripts/argocd-get-admin.sh
+
+  argocd:ui:
+    desc: Port-forward ArgoCD UI and print login credentials
+    cmds:
+      - ./scripts/argocd-ui.sh
+
   cloud:e2e:
     desc: Provision cloud cluster, bootstrap ArgoCD, and validate app health (keeps cluster running)
     cmds:

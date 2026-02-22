@@ -1,7 +1,7 @@
-.PHONY: help preflight static-validate static-validate-fast static-validate-full plan bootstrap kind-up kind-status kind-validate kind-down talos-local-up talos-local-status talos-local-down
+.PHONY: help preflight static-validate static-validate-fast static-validate-full plan bootstrap kind-up kind-status kind-validate kind-down talos-local-up talos-local-status talos-local-down argocd-get-admin argocd-ui
 
 help:
-	@echo "Targets: preflight, static-validate, static-validate-fast, static-validate-full, plan, bootstrap, kind-up, kind-status, kind-validate, kind-down, talos-local-up, talos-local-status, talos-local-down"
+	@echo "Targets: preflight, static-validate, static-validate-fast, static-validate-full, plan, bootstrap, kind-up, kind-status, kind-validate, kind-down, talos-local-up, talos-local-status, talos-local-down, argocd-get-admin, argocd-ui"
 
 preflight:
 	@./scripts/pre-bootstrap-test.sh
@@ -41,3 +41,9 @@ talos-local-status:
 
 talos-local-down:
 	@./scripts/talos/local-down.sh
+
+argocd-get-admin:
+	@./scripts/argocd-get-admin.sh
+
+argocd-ui:
+	@./scripts/argocd-ui.sh
