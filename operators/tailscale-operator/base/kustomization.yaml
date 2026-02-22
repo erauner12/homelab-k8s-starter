@@ -2,9 +2,14 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 namespace: tailscale
 
-# The operator expects a pre-created Secret named "operator-oauth" in namespace "tailscale"
-# with keys: client_id and client_secret.
-# For starter simplicity, create/apply that Secret separately before enabling this app.
+# KSOPS generator for SOPS-encrypted OAuth secret (ArgoCD compatible)
+# The operator-oauth secret is expected by the Helm chart when oauth values are unset
+# It must contain keys: client_id and client_secret
+generators:
+  - secret-generator.yaml
+
+generatorOptions:
+  disableNameSuffixHash: true
 
 # ProxyClass for Cilium compatibility (force iptables mode)
 resources:
