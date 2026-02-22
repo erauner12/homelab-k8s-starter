@@ -11,6 +11,13 @@ This starter contains only ArgoCD-focused helper scripts.
 - `kind-status.sh`: inspect local kind deployment status
 - `kind-validate.sh`: validate ArgoCD sync and pod readiness
 - `kind-down.sh`: delete local kind cluster
+- `talos/local-up.sh`: create local Talos cluster and apply kind-profile bootstrap (single-cluster guard enabled; set `ALLOW_MULTI_CLUSTER=true` to override)
+  - Docker provisioner note: Longhorn is skipped by default because Talos-in-Docker lacks `iscsiadm`; set `ALLOW_UNSUPPORTED_LONGHORN_DOCKER=true` to force.
+  - Bootstrap profiles:
+    - `BOOTSTRAP_PROFILE=erauner-colos` (auto-picks no-longhorn bootstrap when Longhorn is disabled)
+    - `BOOTSTRAP_PROFILE=erauner-colos-no-longhorn` (always no-longhorn bootstrap)
+- `talos/local-status.sh`: show Talos cluster and kube context status
+- `talos/local-down.sh`: destroy local Talos cluster
 - `argocd-create-deploy-key.sh`: creates repository deploy key and ArgoCD repo secret
 - `dns-status.sh`: list HTTPRoute and Tailscale DNS status for the active cluster
 - `openclaw-access.sh`: compatibility wrapper to `scripts/openclaw/access.sh`

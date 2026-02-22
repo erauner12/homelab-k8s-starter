@@ -1,0 +1,167 @@
+cluster:
+  allowSchedulingOnControlPlanes: true
+  network:
+    cni:
+      name: none
+  proxy:
+    disabled: true
+  scheduler:
+    extraArgs:
+      bind-address: "0.0.0.0"
+  controllerManager:
+    extraArgs:
+      bind-address: "0.0.0.0"
+  apiServer:
+    admissionControl:
+      - name: PodSecurity
+        configuration:
+          apiVersion: pod-security.admission.config.k8s.io/v1
+          kind: PodSecurityConfiguration
+          defaults:
+            enforce: baseline
+            enforce-version: latest
+            audit: baseline
+            audit-version: latest
+            warn: baseline
+            warn-version: latest
+          exemptions:
+            namespaces:
+              - argocd
+              - cert-manager
+              - cilium
+              - cilium-test
+              - external-secrets
+              - network
+              - tailscale
+              - envoy-gateway-system
+              - demo
+            runtimeClasses: []
+            usernames: []
+  # NOTE: These are safe defaults from your Omni pattern. Review version pins before production.
+  extraManifests:
+    - https://raw.githubusercontent.com/alex1989hu/kubelet-serving-cert-approver/main/deploy/standalone-install.yaml
+    - https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+    - https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.2.0/experimental-install.yaml
+  inlineManifests:
+    - name: local-path
+      contents: |
+        ---
+        apiVersion: storage.k8s.io/v1
+        kind: StorageClass
+        metadata:
+          name: local-path
+        provisioner: rancher.io/local-path
+        volumeBindingMode: WaitForFirstConsumer
+        reclaimPolicy: Retain
+    - name: cilium-install
+      contents: |
+        ---
+        apiVersion: v1
+        kind: Namespace
+        metadata:
+          name: cilium
+        ---
+        apiVersion: v1
+        kind: ConfigMap
+        metadata:
+          name: cilium-values
+          namespace: cilium
+        data:
+          values.yaml: |
+            # For Talos-in-Docker bootstrap, Cilium must talk directly to the
+            # API endpoint before Service IP routing is established.
+            k8sServiceHost: __K8S_API_HOST__
+            k8sServicePort: 6443
+            kubeProxyReplacement: true
+            # Talos-in-Docker: avoid privileged cleanup init container that
+            # can fail with "unable to apply caps: operation not permitted".
+            cleanState: false
+            routingMode: native
+            ipv4NativeRoutingCIDR: 10.244.0.0/16
+            autoDirectNodeRoutes: true
+            ipam:
+              mode: kubernetes
+            socketLB:
+              enabled: true
+              hostNamespaceOnly: true
+            gatewayAPI:
+              enabled: true
+            operator:
+              replicas: 1
+            securityContext:
+              capabilities:
+                ciliumAgent:
+                  - CHOWN
+                  - KILL
+                  - NET_ADMIN
+                  - NET_RAW
+                  - IPC_LOCK
+                  - SYS_ADMIN
+                  - SYS_RESOURCE
+                  - DAC_OVERRIDE
+                  - FOWNER
+                  - SETGID
+                  - SETUID
+                cleanCiliumState: []
+        ---
+        apiVersion: v1
+        kind: ServiceAccount
+        metadata:
+          name: cilium-install
+          namespace: cilium
+        ---
+        apiVersion: rbac.authorization.k8s.io/v1
+        kind: ClusterRoleBinding
+        metadata:
+          name: cilium-install
+        roleRef:
+          apiGroup: rbac.authorization.k8s.io
+          kind: ClusterRole
+          name: cluster-admin
+        subjects:
+          - kind: ServiceAccount
+            name: cilium-install
+            namespace: cilium
+        ---
+        apiVersion: batch/v1
+        kind: Job
+        metadata:
+          name: cilium-install
+          namespace: cilium
+        spec:
+          backoffLimit: 10
+          template:
+            metadata:
+              labels:
+                app: cilium-install
+            spec:
+              serviceAccountName: cilium-install
+              hostNetwork: true
+              restartPolicy: OnFailure
+              tolerations:
+                - operator: Exists
+              containers:
+                - name: cilium-install
+                  image: quay.io/cilium/cilium-cli:v0.18.4
+                  command:
+                    - cilium
+                    - install
+                    - --version
+                    - "1.17.5"
+                    - -n
+                    - cilium
+                    - -f
+                    - /values.yaml
+                  env:
+                    - name: KUBERNETES_SERVICE_HOST
+                      value: "__K8S_API_HOST__"
+                    - name: KUBERNETES_SERVICE_PORT
+                      value: "6443"
+                  volumeMounts:
+                    - name: values
+                      mountPath: /values.yaml
+                      subPath: values.yaml
+              volumes:
+                - name: values
+                  configMap:
+                    name: cilium-values

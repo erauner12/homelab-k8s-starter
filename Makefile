@@ -1,7 +1,7 @@
-.PHONY: help preflight static-validate static-validate-fast static-validate-full plan bootstrap kind-up kind-status kind-validate kind-down
+.PHONY: help preflight static-validate static-validate-fast static-validate-full plan bootstrap kind-up kind-status kind-validate kind-down talos-local-up talos-local-status talos-local-down
 
 help:
-	@echo "Targets: preflight, static-validate, static-validate-fast, static-validate-full, plan, bootstrap, kind-up, kind-status, kind-validate, kind-down"
+	@echo "Targets: preflight, static-validate, static-validate-fast, static-validate-full, plan, bootstrap, kind-up, kind-status, kind-validate, kind-down, talos-local-up, talos-local-status, talos-local-down"
 
 preflight:
 	@./scripts/pre-bootstrap-test.sh
@@ -32,3 +32,12 @@ kind-validate:
 
 kind-down:
 	@./scripts/kind-down.sh
+
+talos-local-up:
+	@./scripts/talos/local-up.sh
+
+talos-local-status:
+	@./scripts/talos/local-status.sh
+
+talos-local-down:
+	@./scripts/talos/local-down.sh

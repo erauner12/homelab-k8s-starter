@@ -65,3 +65,4 @@ Operator notes:
 - Keep secret files as templates only in Git.
 - Generate your own credentials and tokens per environment.
 - OpenClaw-specific helper scripts live under `scripts/openclaw/`.
+- Talos standalone baseline lives under `talos/` (see `docs/TALOS_FROM_OMNI.md`).

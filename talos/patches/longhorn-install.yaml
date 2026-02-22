@@ -1,0 +1,85 @@
+cluster:
+  inlineManifests:
+    - name: longhorn-install
+      contents: |
+        ---
+        apiVersion: v1
+        kind: Namespace
+        metadata:
+          name: longhorn-system
+          labels:
+            pod-security.kubernetes.io/audit: privileged
+            pod-security.kubernetes.io/warn: privileged
+            pod-security.kubernetes.io/enforce: privileged
+          annotations:
+            pod-security.kubernetes.io/audit: privileged
+            pod-security.kubernetes.io/warn: privileged
+            pod-security.kubernetes.io/enforce: privileged
+        ---
+        apiVersion: v1
+        kind: ServiceAccount
+        metadata:
+          name: longhorn-install
+          namespace: longhorn-system
+        ---
+        apiVersion: rbac.authorization.k8s.io/v1
+        kind: ClusterRoleBinding
+        metadata:
+          name: longhorn-install
+        roleRef:
+          apiGroup: rbac.authorization.k8s.io
+          kind: ClusterRole
+          name: cluster-admin
+        subjects:
+          - kind: ServiceAccount
+            name: longhorn-install
+            namespace: longhorn-system
+        ---
+        apiVersion: batch/v1
+        kind: Job
+        metadata:
+          name: longhorn-install
+          namespace: longhorn-system
+        spec:
+          backoffLimit: 10
+          template:
+            metadata:
+              labels:
+                app: longhorn-install
+            spec:
+              serviceAccountName: longhorn-install
+              hostNetwork: true
+              restartPolicy: OnFailure
+              tolerations:
+                - operator: Exists
+              initContainers:
+                - name: wait-for-cilium
+                  image: bitnami/kubectl:latest
+                  command:
+                    - /bin/bash
+                    - -c
+                    - |
+                      set -e
+                      kubectl -n cilium wait --for=condition=complete job/cilium-install --timeout=600s
+                      kubectl -n cilium wait --for=condition=Ready pod -l k8s-app=cilium --timeout=600s
+                  env:
+                    - name: KUBERNETES_SERVICE_HOST
+                      value: "__K8S_API_HOST__"
+                    - name: KUBERNETES_SERVICE_PORT
+                      value: "6443"
+              containers:
+                - name: install
+                  image: bitnami/kubectl:latest
+                  command:
+                    - /bin/bash
+                    - -c
+                    - |
+                      set -e
+                      kubectl apply -f https://raw.githubusercontent.com/longhorn/longhorn/v1.9.1/deploy/longhorn.yaml
+                      kubectl -n longhorn-system wait --for=condition=ready pod -l app=longhorn-manager --timeout=900s
+                      kubectl -n longhorn-system wait --for=condition=ready pod -l app=longhorn-driver-deployer --timeout=900s
+                  env:
+                    - name: KUBERNETES_SERVICE_HOST
+                      value: "__K8S_API_HOST__"
+                    - name: KUBERNETES_SERVICE_PORT
+                      value: "6443"

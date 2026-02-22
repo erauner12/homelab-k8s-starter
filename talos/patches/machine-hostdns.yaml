@@ -1,0 +1,9 @@
+machine:
+  features:
+    hostDNS:
+      enabled: true
+      # Required with Cilium BPF host routing in this pattern.
+      # See:
+      # - https://github.com/cilium/cilium/issues/36737
+      # - https://github.com/siderolabs/talos/issues/10002
+      forwardKubeDNSToHost: true

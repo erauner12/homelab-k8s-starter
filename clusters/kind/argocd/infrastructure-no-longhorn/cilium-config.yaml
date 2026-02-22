@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cilium-config
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-95"
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/erauner12/homelab-k8s-starter.git
+    targetRevision: main
+    path: infrastructure/cilium-config/overlays/erauner-colos
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: kube-system
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=false

@@ -51,6 +51,21 @@ tasks:
     cmds:
       - ./scripts/kind-down.sh
 
+  talos:local:up:
+    desc: Create local Talos cluster and bootstrap ArgoCD + kind profile
+    cmds:
+      - ./scripts/talos/local-up.sh
+
+  talos:local:status:
+    desc: Show local Talos status/context
+    cmds:
+      - ./scripts/talos/local-status.sh
+
+  talos:local:down:
+    desc: Destroy local Talos cluster
+    cmds:
+      - ./scripts/talos/local-down.sh
+
   cloud:e2e:
     desc: Provision cloud cluster, bootstrap ArgoCD, and validate app health (keeps cluster running)
     cmds:

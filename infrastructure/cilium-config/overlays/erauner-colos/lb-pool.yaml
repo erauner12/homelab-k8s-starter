@@ -1,0 +1,11 @@
+apiVersion: cilium.io/v2alpha1
+kind: CiliumLoadBalancerIPPool
+metadata:
+  name: erauner-colos-pool-default
+spec:
+  serviceSelector: {}
+  allowFirstLastIPs: "No"
+  blocks:
+    # Update this range for your LAN before applying.
+    - start: 10.10.100.10
+      stop: 10.10.100.99
