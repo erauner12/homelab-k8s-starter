@@ -10,16 +10,14 @@ metadata:
   annotations:
     homelab.dev/managed-by: "argocd"
     homelab.dev/description: "ArgoCD UI ingress via tailscale only"
+    tailscale.com/proxy-class: "iptables-proxy"
 spec:
   ingressClassName: tailscale
-  rules:
-    - host: argocd
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: argocd-server
-                port:
-                  number: 80
+  defaultBackend:
+    service:
+      name: argocd-server
+      port:
+        number: 80
+  tls:
+    - hosts:
+        - argocd
