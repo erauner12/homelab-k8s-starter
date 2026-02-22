@@ -370,21 +370,29 @@ repoServer:
         - |
           set -e
           echo "Installing tools..."
+          case "$(uname -m)" in
+            x86_64|amd64) KSOPS_ARCH="x86_64"; SOPS_ARCH="amd64"; KUSTOMIZE_ARCH="amd64" ;;
+            aarch64|arm64) KSOPS_ARCH="arm64"; SOPS_ARCH="arm64"; KUSTOMIZE_ARCH="arm64" ;;
+            *)
+              echo "unsupported architecture: $(uname -m)"
+              exit 1
+              ;;
+          esac
 
           # Download KSOPS (using wget which is included in alpine)
           KSOPS_VERSION="4.3.2"
           echo "Downloading KSOPS v${KSOPS_VERSION}..."
-          wget -qO- "https://github.com/viaduct-ai/kustomize-sops/releases/download/v${KSOPS_VERSION}/ksops_${KSOPS_VERSION}_Linux_x86_64.tar.gz" | tar xz -C /custom-tools/ ksops
+          wget -qO- "https://github.com/viaduct-ai/kustomize-sops/releases/download/v${KSOPS_VERSION}/ksops_${KSOPS_VERSION}_Linux_${KSOPS_ARCH}.tar.gz" | tar xz -C /custom-tools/ ksops
 
           # Download kustomize
           KUSTOMIZE_VERSION="5.0.3"
           echo "Downloading kustomize v${KUSTOMIZE_VERSION}..."
-          wget -qO- "https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv${KUSTOMIZE_VERSION}/kustomize_v${KUSTOMIZE_VERSION}_linux_amd64.tar.gz" | tar xz -C /custom-tools/
+          wget -qO- "https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv${KUSTOMIZE_VERSION}/kustomize_v${KUSTOMIZE_VERSION}_linux_${KUSTOMIZE_ARCH}.tar.gz" | tar xz -C /custom-tools/
 
           # Download SOPS
           SOPS_VERSION="3.10.2"
           echo "Downloading SOPS v${SOPS_VERSION}..."
-          wget -qO /custom-tools/sops "https://github.com/getsops/sops/releases/download/v${SOPS_VERSION}/sops-v${SOPS_VERSION}.linux.amd64"
+          wget -qO /custom-tools/sops "https://github.com/getsops/sops/releases/download/v${SOPS_VERSION}/sops-v${SOPS_VERSION}.linux.${SOPS_ARCH}"
 
           chmod +x /custom-tools/*
 

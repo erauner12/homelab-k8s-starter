@@ -15,10 +15,18 @@ spec:
             - |
               set -e
               apk add --no-cache ca-certificates curl tar
+              case "$(uname -m)" in
+                x86_64|amd64) KSOPS_ARCH="x86_64"; SOPS_ARCH="amd64" ;;
+                aarch64|arm64) KSOPS_ARCH="arm64"; SOPS_ARCH="arm64" ;;
+                *)
+                  echo "unsupported architecture: $(uname -m)"
+                  exit 1
+                  ;;
+              esac
               KSOPS_VERSION="4.3.2"
-              curl -fsSL "https://github.com/viaduct-ai/kustomize-sops/releases/download/v${KSOPS_VERSION}/ksops_${KSOPS_VERSION}_Linux_x86_64.tar.gz" | tar xz -C /custom-tools/ ksops
+              curl -fsSL "https://github.com/viaduct-ai/kustomize-sops/releases/download/v${KSOPS_VERSION}/ksops_${KSOPS_VERSION}_Linux_${KSOPS_ARCH}.tar.gz" | tar xz -C /custom-tools/ ksops
               SOPS_VERSION="3.10.2"
-              curl -fsSL -o /custom-tools/sops "https://github.com/getsops/sops/releases/download/v${SOPS_VERSION}/sops-v${SOPS_VERSION}.linux.amd64"
+              curl -fsSL -o /custom-tools/sops "https://github.com/getsops/sops/releases/download/v${SOPS_VERSION}/sops-v${SOPS_VERSION}.linux.${SOPS_ARCH}"
               chmod +x /custom-tools/*
               mkdir -p /custom-tools/kustomize-plugin/viaduct.ai/v1/ksops/
               cp /custom-tools/ksops /custom-tools/kustomize-plugin/viaduct.ai/v1/ksops/ksops
