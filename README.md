@@ -49,7 +49,7 @@ Workflow sequence:
 5. `./scripts/kind-down.sh` (always)
 
 ## Cloud/bootstrap workflow
-Use the cluster app-of-apps manifests under `clusters/` and configure repository credentials and secrets from `docs/SECRETS.md`.
+Use the cluster app-of-apps manifests under `clusters/` and configure repository credentials and secrets from `docs/SECRETS.md` and `docs/CREDENTIALS_SETUP.md`.
 
 Repeatable cloud e2e bootstrap:
 - `task cloud:e2e` keeps cluster running for manual validation

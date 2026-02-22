@@ -1,5 +1,7 @@
 # Secrets Checklist
 
+See `docs/CREDENTIALS_SETUP.md` for exact credential sources, replacement steps, and handoff checklist.
+
 This starter repo keeps only templates. Do not commit real secrets.
 
 ## Required for local kind profile
