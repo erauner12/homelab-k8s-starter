@@ -29,3 +29,12 @@ Or apply optional kustomization directly:
 
 - `kubectl -n tailscale get pods`
 - `kubectl -n argocd get application tailscale-operator`
+
+## 4. Optional hardening (tags)
+
+Starter defaults to untagged operator/proxy behavior to avoid ACL coupling.
+
+If you want tag-based policy, set tags in:
+- `operators/tailscale-operator/base/values/values.yaml`
+
+Then configure matching `tagOwners` in your Tailscale ACL so the OAuth client is allowed to request those tags.

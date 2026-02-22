@@ -10,10 +10,9 @@ oauth: {}
 installCRDs: true
 
 operatorConfig:
-  # ACL tag for the operator itself
-  # You must make the operator owner of this tag in your Tailscale ACL
-  defaultTags:
-    - "tag:k8s-operator"
+  # Starter default is untagged to avoid ACL coupling.
+  # Set your own tag(s) once your tailnet ACL/tagOwners are configured.
+  defaultTags: []
 
   # Operator container configuration
   logging: "info"
@@ -33,9 +32,9 @@ operatorConfig:
 
 # Proxy configuration for services exposed via Tailscale
 proxyConfig:
-  # ACL tag for proxies created by the operator
-  # You must make the operator owner of this tag in your Tailscale ACL
-  defaultTags: "tag:k8s"
+  # Starter default is untagged to avoid ACL coupling.
+  # Set an explicit tag after configuring tagOwners in Tailscale ACL.
+  defaultTags: ""
 
   # Firewall mode: auto selects best mode based on environment
   # - "auto": automatically detect (recommended)
