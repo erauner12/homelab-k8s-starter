@@ -3,3 +3,9 @@ kind: Kustomization
 
 resources:
   - ../../base
+
+generators:
+  - secret-generator.yaml
+
+generatorOptions:
+  disableNameSuffixHash: true

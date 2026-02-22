@@ -10,3 +10,9 @@ helmCharts:
     releaseName: external-dns
     namespace: network
     valuesFile: values.yaml
+
+generators:
+  - secret-generator.yaml
+
+generatorOptions:
+  disableNameSuffixHash: true

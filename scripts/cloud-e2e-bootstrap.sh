@@ -3,7 +3,6 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 TF_DIR="${ROOT_DIR}/terraform/rackspace-spot"
-HOMELAB_REPO_DEFAULT="/Users/erauner/git/side/homelab-k8s"
 
 CLOUDSPACE_NAME="starter-cloud-$(date +%Y%m%d-%H%M%S)"
 REGION="us-east-iad-1"
@@ -13,7 +12,6 @@ DESIRED_NODES="1"
 DESTROY_ON_EXIT="false"
 RUN_OPTIONAL="true"
 TEST_URL="https://exposure-demo.erauner.cloud"
-HOMELAB_REPO="${HOMELAB_REPO_DEFAULT}"
 
 usage() {
   cat <<USAGE
@@ -26,7 +24,6 @@ Options:
   --bid-price <price>          Spot bid price in USD/hour (default: ${BID_PRICE})
   --desired-nodes <count>      Desired worker count (default: ${DESIRED_NODES})
   --test-url <url>             URL to probe after sync (default: ${TEST_URL})
-  --homelab-repo <path>        Source repo for runtime secrets (default: ${HOMELAB_REPO_DEFAULT})
   --skip-optional              Skip optional cloudflared/exposure-demo apps
   --destroy-on-exit            Destroy cluster at script exit
   -h, --help                   Show this help
@@ -41,7 +38,6 @@ while [[ $# -gt 0 ]]; do
     --bid-price) BID_PRICE="$2"; shift 2 ;;
     --desired-nodes) DESIRED_NODES="$2"; shift 2 ;;
     --test-url) TEST_URL="$2"; shift 2 ;;
-    --homelab-repo) HOMELAB_REPO="$2"; shift 2 ;;
     --skip-optional) RUN_OPTIONAL="false"; shift ;;
     --destroy-on-exit) DESTROY_ON_EXIT="true"; shift ;;
     -h|--help) usage; exit 0 ;;
@@ -122,9 +118,14 @@ echo "[INFO] install argo cd (server-side)"
 kubectl create namespace argocd --dry-run=client -o yaml | kubectl apply -f -
 kubectl apply --server-side --force-conflicts -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 
-# Ensure Helm-backed Kustomize apps can render in Argo repo-server.
-kubectl -n argocd patch configmap argocd-cm --type merge -p '{"data":{"kustomize.buildOptions":"--enable-helm --load-restrictor=LoadRestrictionsNone"}}'
-kubectl -n argocd rollout restart deploy/argocd-repo-server
+# Install SOPS key material and repo-server runtime tools (ksops/sops plugin wiring).
+kubectl -n argocd create secret generic sops-age \
+  --from-file=age.agekey="${SOPS_AGE_KEY_FILE}" \
+  --dry-run=client -o yaml | kubectl apply -f -
+kubectl apply -k "${ROOT_DIR}/infrastructure/argocd-runtime/overlays/erauner-cloud"
+kubectl -n argocd patch deployment argocd-repo-server \
+  --type strategic \
+  --patch-file "${ROOT_DIR}/infrastructure/argocd-runtime/base/repo-server-tools-ssa.yaml"
 kubectl -n argocd rollout status deploy/argocd-repo-server --timeout=600s
 
 kubectl -n argocd rollout status deploy/argocd-server --timeout=600s
@@ -143,10 +144,6 @@ wait_app envoy-gateway
 wait_app httpbin
 
 if [[ "${RUN_OPTIONAL}" == "true" ]]; then
-  echo "[INFO] apply runtime-only cloudflare secrets"
-  sops -d "${HOMELAB_REPO}/infrastructure/network-secrets/overlays/erauner-cloud/secret.cloudflared-apps-token.sops.yaml" | kubectl apply -f -
-  sops -d "${HOMELAB_REPO}/infrastructure/external-secrets-definitions/base/external-dns-cloudflare-secret.sops.yaml" | kubectl apply -f -
-
   echo "[INFO] enable optional cloudflared and exposure-demo apps"
   kubectl apply -f "${ROOT_DIR}/clusters/cloud/argocd/operators/cloudflared-apps-app.yaml"
   kubectl apply -f "${ROOT_DIR}/clusters/cloud/argocd/apps/exposure-demo-app.yaml"
