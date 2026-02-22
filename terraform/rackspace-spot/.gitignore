@@ -2,12 +2,22 @@
 *.tfstate
 *.tfstate.backup
 tfplan
+*.tfplan
+.terraform.tfstate.lock.info
+crash.log
+crash.*.log
+
+# Local variable files
+terraform.tfvars
+*.auto.tfvars
+*.auto.tfvars.json
 
 # Generated kubeconfig (contains credentials)
 kubeconfig-*.yaml
 
 # Decrypted secrets (should only exist encrypted)
-# secrets.sops.yaml is tracked but encrypted
+# Local encrypted token for test runs (keep out of git)
+secrets.sops.yaml
 
 # Terraform cache (lock file IS tracked for reproducible builds)
 .terraform/
