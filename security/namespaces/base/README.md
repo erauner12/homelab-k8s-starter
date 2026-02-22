@@ -10,7 +10,7 @@ security/namespaces/
 │   ├── _system/          # Security-layer system namespaces
 │   │   ├── auth.yaml           # Authentication services (Dex, OAuth2)
 │   │   ├── security.yaml       # Security tools (1Password Connect)
-│   │   └── external-secrets.yaml # External Secrets Operator
+│   │   └── ...                 # Additional platform security namespaces
 │   └── kustomization.yaml
 └── overlays/
     └── home/             # Home cluster overlay
@@ -31,7 +31,6 @@ These namespaces are separated from general infrastructure namespaces because:
 |-----------|---------|-----------|
 | `auth` | Authentication services (Dex, OAuth2 Proxy) | restricted |
 | `security` | Security tools (1Password Connect, secret stores) | platform default |
-| `external-secrets` | External Secrets Operator | platform default |
 
 ## Related
 

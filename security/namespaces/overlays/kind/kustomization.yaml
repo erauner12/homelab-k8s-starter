@@ -3,5 +3,4 @@ kind: Kustomization
 resources:
   - argocd.yaml
   - cert-manager.yaml
-  - external-secrets.yaml
   - demo.yaml

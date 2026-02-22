@@ -49,7 +49,7 @@ Think of this as: "Is this resource configuration allowed?"
 
 ```
 security/
-├── namespaces/           # Security-layer namespaces (auth, security, external-secrets)
+├── namespaces/           # Security-layer namespaces (auth, security, and platform security namespaces)
 │   ├── base/
 │   │   └── _system/      # System namespace definitions
 │   └── overlays/
@@ -136,7 +136,7 @@ Not everything security-related belongs here. **Application-specific** security 
 Both `NetworkPolicy` and `CiliumNetworkPolicy` follow the same placement rule:
 
 ```
-Security-layer namespaces (auth, security, external-secrets)
+Security-layer namespaces (auth, security, platform security namespaces)
     → security/network-policies/
 
 Application namespaces (homepage, jenkins, coder, etc.)

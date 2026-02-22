@@ -5,7 +5,6 @@ kind: Kustomization
 # This kustomization manages namespaces for security infrastructure:
 # - auth: Authentication services (Dex, OAuth2 Proxy)
 # - security: Security tools (1Password Connect, Kyverno admission)
-# - external-secrets: External Secrets Operator
 
 resources:
   - _system/
