@@ -15,5 +15,3 @@ helmCharts:
     includeCRDs: true
 
 patches:
-  - path: httproute-cloud-patch.yaml
-  - path: service-dns-patch.yaml

@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: argocd-tailscale
+  namespace: argocd
+  labels:
+    homelab.dev/layer: "infra-platform"
+    app.kubernetes.io/name: "argocd"
+    app.kubernetes.io/component: "server"
+  annotations:
+    homelab.dev/managed-by: "argocd"
+    homelab.dev/description: "ArgoCD UI ingress via tailscale only"
+spec:
+  ingressClassName: tailscale
+  rules:
+    - host: argocd
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: argocd-server
+                port:
+                  number: 80

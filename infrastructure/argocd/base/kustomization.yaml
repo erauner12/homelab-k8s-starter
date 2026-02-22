@@ -4,7 +4,7 @@ kind: Kustomization
 
 resources:
   # Namespace managed by security-namespaces (issue #950)
-  - httproute.yaml
+  - ingress-tailscale.yaml
   # TEMPORARILY DISABLED: Webhook-based sync disabled for testing
   # To re-enable: uncomment the line below
   # - httproute-webhook.yaml
