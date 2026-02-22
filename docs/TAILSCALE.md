@@ -1,6 +1,6 @@
-# Tailscale Operator (Optional)
+# Tailscale Operator
 
-The starter includes a Tailscale operator app manifest, but it is optional until OAuth credentials are configured.
+The cloud operators profile includes the Tailscale operator app. It will sync successfully after OAuth credentials are configured.
 
 ## 1. Create OAuth secret
 
@@ -14,16 +14,11 @@ For local testing, you can decrypt and apply from your private repo copy:
 sops -d /path/to/operator-oauth-secret.sops.yaml | kubectl apply -f -
 ```
 
-## 2. Enable optional app set
+## 2. Cloud operators include this app
 
-Edit:
+Defined in:
 - `clusters/cloud/argocd/operators/kustomization.yaml`
-
-Add:
-- `tailscale-operator-app.yaml`
-
-Or apply optional kustomization directly:
-- `clusters/cloud/argocd/operators/kustomization.optional.yaml`
+- `clusters/cloud/argocd/operators/tailscale-operator-app.yaml`
 
 ## 3. Verify
 

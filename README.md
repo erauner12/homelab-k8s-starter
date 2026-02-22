@@ -58,7 +58,7 @@ Repeatable cloud e2e bootstrap:
 Operator notes:
 - Envoy Gateway is enabled in the cloud operators profile.
 - Cloudflared apps tunnel is staged as optional. See `docs/CLOUDFLARE.md`.
-- Tailscale operator is staged as optional until OAuth secret setup is complete. See `docs/TAILSCALE.md`.
+- Tailscale operator is enabled in cloud operators; provide OAuth secret first. See `docs/TAILSCALE.md`.
 - App exposure examples (Cloudflare + Tailscale) are in `docs/EXPOSURE_PATTERNS.md`.
 
 ## Notes

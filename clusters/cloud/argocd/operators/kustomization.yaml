@@ -5,3 +5,4 @@ resources:
   - external-dns-app.yaml
   - external-secrets-app.yaml
   - envoy-gateway-app.yaml
+  - tailscale-operator-app.yaml
