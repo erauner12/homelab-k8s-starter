@@ -3,3 +3,4 @@ kind: Kustomization
 
 resources:
   - argocd-cm-ssa.yaml
+  - repo-server-tools-ssa.yaml
