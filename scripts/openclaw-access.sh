@@ -5,9 +5,11 @@ NAMESPACE="ai"
 INGRESS_NAME="openclaw-tailscale"
 SECRET_NAME="openclaw-gateway-auth"
 SECRET_KEY="gateway-token"
-CONTEXT="${KUBE_CONTEXT:-}"
+KUBE_CONTEXT="${KUBE_CONTEXT:-}"
 COPY=false
 SHOW_URL_ONLY=false
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "${SCRIPT_DIR}/lib/kube-common.sh"
 
 usage() {
   cat <<USAGE
@@ -32,7 +34,7 @@ USAGE
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --context)
-      CONTEXT="$2"; shift 2 ;;
+      KUBE_CONTEXT="$2"; shift 2 ;;
     --copy-token)
       COPY=true; shift ;;
     --url-only)
@@ -46,12 +48,9 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-kubectl_cmd=(kubectl)
-if [[ -n "$CONTEXT" ]]; then
-  kubectl_cmd+=(--context "$CONTEXT")
-fi
+kube_common_init "scripts/openclaw-access.sh"
 
-host="$(${kubectl_cmd[@]} -n "$NAMESPACE" get ingress "$INGRESS_NAME" -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' 2>/dev/null || true)"
+host="$(${KUBECTL_CMD[@]} -n "$NAMESPACE" get ingress "$INGRESS_NAME" -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' 2>/dev/null || true)"
 if [[ -z "$host" ]]; then
   echo "Failed to read ingress hostname from ${NAMESPACE}/${INGRESS_NAME}." >&2
   echo "Check that OpenClaw and Tailscale ingress are deployed." >&2
@@ -65,7 +64,7 @@ if $SHOW_URL_ONLY; then
   exit 0
 fi
 
-token_b64="$(${kubectl_cmd[@]} -n "$NAMESPACE" get secret "$SECRET_NAME" -o jsonpath="{.data.${SECRET_KEY}}" 2>/dev/null || true)"
+token_b64="$(${KUBECTL_CMD[@]} -n "$NAMESPACE" get secret "$SECRET_NAME" -o jsonpath="{.data.${SECRET_KEY}}" 2>/dev/null || true)"
 if [[ -z "$token_b64" ]]; then
   echo "Failed to read token from secret ${NAMESPACE}/${SECRET_NAME} key ${SECRET_KEY}." >&2
   exit 1

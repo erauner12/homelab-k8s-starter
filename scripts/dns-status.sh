@@ -3,7 +3,9 @@ set -euo pipefail
 
 VERIFY=false
 JSON=false
-CONTEXT="${KUBE_CONTEXT:-}"
+KUBE_CONTEXT="${KUBE_CONTEXT:-}"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "${SCRIPT_DIR}/lib/kube-common.sh"
 
 usage() {
   cat <<USAGE
@@ -28,7 +30,7 @@ while [[ $# -gt 0 ]]; do
     --json)
       JSON=true; shift ;;
     --context)
-      CONTEXT="$2"; shift 2 ;;
+      KUBE_CONTEXT="$2"; shift 2 ;;
     -h|--help)
       usage; exit 0 ;;
     *)
@@ -43,13 +45,10 @@ if ! command -v jq >/dev/null 2>&1; then
   exit 1
 fi
 
-kubectl_cmd=(kubectl)
-if [[ -n "$CONTEXT" ]]; then
-  kubectl_cmd+=(--context "$CONTEXT")
-fi
+kube_common_init "scripts/dns-status.sh"
 
-routes_json="$(${kubectl_cmd[@]} get httproutes -A -o json)"
-ing_json="$(${kubectl_cmd[@]} get ingress -A -o json)"
+routes_json="$(${KUBECTL_CMD[@]} get httproutes -A -o json)"
+ing_json="$(${KUBECTL_CMD[@]} get ingress -A -o json)"
 
 routes_rows="$(printf '%s' "$routes_json" | jq -r '
   .items[]
