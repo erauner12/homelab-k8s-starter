@@ -8,7 +8,9 @@ metadata:
     external-dns.alpha.kubernetes.io/cloudflare-proxied: "true"
 spec:
   parentRefs:
-    - name: envoy-public
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: envoy-public
       namespace: network
   hostnames:
     - app.example.com
@@ -18,5 +20,8 @@ spec:
             type: PathPrefix
             value: /
       backendRefs:
-        - name: app
+        - group: ""
+          kind: Service
+          name: app
           port: 80
+          weight: 1
