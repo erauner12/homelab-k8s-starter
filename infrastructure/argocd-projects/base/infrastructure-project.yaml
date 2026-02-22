@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: infrastructure
+  namespace: argocd
+spec:
+  description: Infrastructure components for cluster runtime and platform wiring
+  sourceRepos:
+    - https://github.com/erauner12/homelab-k8s-starter.git
+    - ssh://git@github.com/erauner12/homelab-k8s-starter.git
+    - git@github.com:erauner12/homelab-k8s-starter.git
+  destinations:
+    - namespace: '*'
+      server: https://kubernetes.default.svc
+  clusterResourceWhitelist:
+    - group: '*'
+      kind: '*'
+  namespaceResourceWhitelist:
+    - group: '*'
+      kind: '*'

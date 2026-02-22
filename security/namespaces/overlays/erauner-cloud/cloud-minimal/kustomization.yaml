@@ -9,6 +9,7 @@ resources:
   - network.yaml
   - observability.yaml
   - demo.yaml
+  - ai.yaml
   - envoy-gateway-system.yaml
   - security.yaml
   - tailscale.yaml

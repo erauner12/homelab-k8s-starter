@@ -6,7 +6,7 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "-120"
 spec:
-  project: default
+  project: security
   source:
     repoURL: https://github.com/erauner12/homelab-k8s-starter.git
     targetRevision: main

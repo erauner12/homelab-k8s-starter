@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: apps
+  namespace: argocd
+spec:
+  description: Application workloads for starter environments
+  sourceRepos:
+    - https://github.com/erauner12/homelab-k8s-starter.git
+    - ssh://git@github.com/erauner12/homelab-k8s-starter.git
+    - git@github.com:erauner12/homelab-k8s-starter.git
+  destinations:
+    - namespace: '*'
+      server: https://kubernetes.default.svc
+  clusterResourceWhitelist: []
+  namespaceResourceWhitelist:
+    - group: '*'
+      kind: '*'

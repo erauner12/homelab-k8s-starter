@@ -1,16 +1,16 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: argocd-runtime
+  name: argocd-projects
   namespace: argocd
   annotations:
-    argocd.argoproj.io/sync-wave: "-90"
+    argocd.argoproj.io/sync-wave: "-205"
 spec:
-  project: infrastructure
+  project: default
   source:
     repoURL: https://github.com/erauner12/homelab-k8s-starter.git
     targetRevision: main
-    path: infrastructure/argocd-runtime/overlays/erauner-cloud
+    path: infrastructure/argocd-projects/overlays/erauner-cloud
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd
@@ -20,5 +20,3 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=false
-      - ServerSideApply=true
-      - Replace=true
