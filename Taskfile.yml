@@ -7,9 +7,19 @@ tasks:
       - ./scripts/pre-bootstrap-test.sh
 
   static:validate:
-    desc: Render and schema-validate key kustomize targets
+    desc: Render and schema-validate key targets (auto full/fast)
     cmds:
       - ./scripts/static-validate.sh
+
+  static:validate:fast:
+    desc: Render and schema-validate non-helm targets
+    cmds:
+      - ./scripts/static-validate-fast.sh
+
+  static:validate:full:
+    desc: Render and schema-validate all targets (requires Helm 3)
+    cmds:
+      - ./scripts/static-validate-full.sh
 
   bootstrap:plan:
     desc: Show bootstrap plan

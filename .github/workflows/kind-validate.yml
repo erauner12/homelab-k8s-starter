@@ -32,7 +32,7 @@ jobs:
           echo "$HOME/go/bin" >> "$GITHUB_PATH"
 
       - name: Run static validation
-        run: ./scripts/static-validate.sh
+        run: ./scripts/static-validate-full.sh
 
       - name: Set up kind
         uses: helm/kind-action@v1

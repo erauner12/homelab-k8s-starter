@@ -23,7 +23,15 @@ This repository includes a local `kind` profile for smoke testing the starter st
 ```
 
 This checks that key kustomize targets render successfully and validates generated manifests with `kubeconform`.
-If Helm 3 is not available, Helm-backed targets are skipped with warnings.
+
+Explicit modes:
+```bash
+./scripts/static-validate-fast.sh
+./scripts/static-validate-full.sh
+```
+
+`static-validate-full.sh` validates all targets and requires Helm 3.
+`static-validate-fast.sh` validates non-helm targets only.
 
 ## Start cluster and deploy
 ```bash

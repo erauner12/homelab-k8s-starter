@@ -14,8 +14,11 @@ This repository intentionally uses ArgoCD only.
 - optional Rackspace Spot Terraform pattern
 
 ## Local test workflow (recommended first)
-1. Run static validation first:
+1. Run static validation first (auto-selects full if Helm 3 is available):
    - `./scripts/static-validate.sh`
+   - Optional explicit modes:
+   - `./scripts/static-validate-fast.sh`
+   - `./scripts/static-validate-full.sh`
 2. Create kind cluster and deploy starter profile:
    - `./scripts/kind-up.sh`
 3. Check status:
@@ -27,14 +30,14 @@ This repository intentionally uses ArgoCD only.
 
 See `docs/KIND.md` for details.
 
-Note: Helm-backed static checks require Helm 3.
+Note: full static validation requires Helm 3.
 
 ## Continuous validation
 This repository includes a GitHub Actions workflow that runs the same smoke gate on `pull_request` and `push` to `main`:
 - `.github/workflows/kind-validate.yml`
 
 Workflow sequence:
-1. `./scripts/static-validate.sh`
+1. `./scripts/static-validate-full.sh`
 2. `./scripts/kind-up.sh`
 3. `./scripts/kind-validate.sh`
 4. `./scripts/kind-status.sh` (on failure)
