@@ -1,0 +1,42 @@
+apps_required:
+  - app-of-apps
+  - infra-app-of-apps
+  - operators-app-of-apps
+  - security-app-of-apps
+  - security-namespaces
+  - cert-manager
+  - external-secrets
+  - envoy-gateway
+  - httpbin
+
+apps_optional:
+  - apps-app-of-apps
+  - sops-age-seed
+  - argocd-runtime
+  - argocd-projects
+  - cloudflared-apps
+  - exposure-demo
+  - tailscale-operator
+  - external-dns
+  - openclaw
+
+namespaces_required:
+  - argocd
+  - cert-manager
+  - external-secrets
+  - demo
+
+namespaces_optional:
+  - network
+  - tailscale
+  - ai
+
+pods_required_namespaces:
+  - cert-manager
+  - external-secrets
+  - demo
+
+pods_optional_namespaces:
+  - network
+  - tailscale
+  - ai

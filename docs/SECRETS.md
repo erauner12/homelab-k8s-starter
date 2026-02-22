@@ -4,7 +4,7 @@ See `docs/CREDENTIALS_SETUP.md` for exact credential sources, replacement steps,
 
 This starter repo keeps only templates. Do not commit real secrets.
 
-## Required for local kind profile
+## Required for local Talos profile
 - None by default for base smoke profile.
 
 ## Required for cloud profile

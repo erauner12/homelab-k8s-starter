@@ -18,11 +18,11 @@ if ! helm version -c --short >/dev/null 2>&1; then
 fi
 
 KUSTOMIZE_PATHS=(
-  "clusters/kind/bootstrap"
-  "clusters/kind/argocd/root"
-  "clusters/kind/argocd/operators"
-  "clusters/kind/argocd/security"
-  "clusters/kind/argocd/apps"
+  "clusters/local/bootstrap"
+  "clusters/local/argocd/root"
+  "clusters/local/argocd/operators"
+  "clusters/local/argocd/security"
+  "clusters/local/argocd/apps"
   "clusters/cloud/bootstrap"
   "clusters/cloud/argocd/operators"
   "clusters/cloud/argocd/security"
@@ -31,7 +31,7 @@ KUSTOMIZE_PATHS=(
   "operators/external-secrets/overlays/erauner-cloud"
   "operators/envoy-gateway/overlays/erauner-cloud"
   "infrastructure/cloudflared-apps/overlays/erauner-cloud"
-  "security/namespaces/overlays/kind"
+  "security/namespaces/overlays/erauner-cloud/cloud-minimal"
   "security/namespaces/overlays/erauner-cloud"
   "apps/poc-httpbin/base"
   "apps/poc-exposure-patterns/base"

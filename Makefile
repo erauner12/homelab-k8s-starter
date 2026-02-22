@@ -1,7 +1,7 @@
-.PHONY: help preflight static-validate static-validate-fast static-validate-full plan bootstrap kind-up kind-status kind-validate kind-down talos-local-up talos-local-status talos-local-down argocd-get-admin argocd-ui
+.PHONY: help preflight static-validate static-validate-fast static-validate-full plan bootstrap talos-local-up talos-local-status talos-local-validate talos-local-down smoke-local smoke-cloud argocd-get-admin argocd-ui
 
 help:
-	@echo "Targets: preflight, static-validate, static-validate-fast, static-validate-full, plan, bootstrap, kind-up, kind-status, kind-validate, kind-down, talos-local-up, talos-local-status, talos-local-down, argocd-get-admin, argocd-ui"
+	@echo "Targets: preflight, static-validate, static-validate-fast, static-validate-full, plan, bootstrap, talos-local-up, talos-local-status, talos-local-validate, talos-local-down, smoke-local, smoke-cloud, argocd-get-admin, argocd-ui"
 
 preflight:
 	@./scripts/pre-bootstrap-test.sh
@@ -21,23 +21,14 @@ plan:
 bootstrap:
 	@./bin/homelabctl bootstrap run --kubeconfig ~/.kube/config
 
-kind-up:
-	@./scripts/kind-up.sh
-
-kind-status:
-	@./scripts/kind-status.sh
-
-kind-validate:
-	@./scripts/kind-validate.sh
-
-kind-down:
-	@./scripts/kind-down.sh
-
 talos-local-up:
 	@./scripts/talos/local-up.sh
 
 talos-local-status:
 	@./scripts/talos/local-status.sh
+
+talos-local-validate:
+	@./scripts/talos/local-validate.sh
 
 talos-local-down:
 	@./scripts/talos/local-down.sh
@@ -47,3 +38,9 @@ argocd-get-admin:
 
 argocd-ui:
 	@./scripts/argocd-ui.sh
+
+smoke-local:
+	@./smoke/scripts/run.sh --profile local --context $${CLUSTER_NAME:-starter-talos}
+
+smoke-cloud:
+	@./smoke/scripts/run.sh --profile cloud

@@ -1,16 +1,16 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: operators-app-of-apps
+  name: app-of-apps
   namespace: argocd
-  annotations:
-    argocd.argoproj.io/sync-wave: "-100"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
 spec:
   project: default
   source:
     repoURL: https://github.com/erauner12/homelab-k8s-starter.git
     targetRevision: main
-    path: clusters/kind/argocd/operators
+    path: clusters/local/argocd/root-no-longhorn
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd
@@ -20,3 +20,4 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=false
+      - ApplyOutOfSyncOnly=true

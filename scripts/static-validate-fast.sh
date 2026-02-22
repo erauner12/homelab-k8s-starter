@@ -11,16 +11,16 @@ require kustomize
 require kubeconform
 
 KUSTOMIZE_PATHS=(
-  "clusters/kind/bootstrap"
-  "clusters/kind/argocd/root"
-  "clusters/kind/argocd/operators"
-  "clusters/kind/argocd/security"
-  "clusters/kind/argocd/apps"
+  "clusters/local/bootstrap"
+  "clusters/local/argocd/root"
+  "clusters/local/argocd/operators"
+  "clusters/local/argocd/security"
+  "clusters/local/argocd/apps"
   "clusters/cloud/bootstrap"
   "clusters/cloud/argocd/operators"
   "clusters/cloud/argocd/security"
   "clusters/cloud/argocd/apps"
-  "security/namespaces/overlays/kind"
+  "security/namespaces/overlays/erauner-cloud/cloud-minimal"
   "security/namespaces/overlays/erauner-cloud"
   "apps/poc-httpbin/base"
 )

@@ -167,23 +167,20 @@ bootstrap_path=""
 case "${BOOTSTRAP_PROFILE}" in
   erauner-colos)
     if [[ "${ENABLE_LONGHORN}" == "true" ]]; then
-      bootstrap_path="clusters/kind/bootstrap"
+      bootstrap_path="clusters/local/bootstrap"
     else
-      bootstrap_path="clusters/kind/bootstrap-no-longhorn"
+      bootstrap_path="clusters/local/bootstrap-no-longhorn"
     fi
     ;;
-  kind)
-    bootstrap_path="clusters/kind/bootstrap"
-    ;;
   erauner-colos-no-longhorn)
-    bootstrap_path="clusters/kind/bootstrap-no-longhorn"
+    bootstrap_path="clusters/local/bootstrap-no-longhorn"
     ;;
   none)
     bootstrap_path=""
     ;;
   *)
     echo "[ERR] unsupported BOOTSTRAP_PROFILE: ${BOOTSTRAP_PROFILE}"
-    echo "[ERR] supported values: erauner-colos, erauner-colos-no-longhorn, kind, none"
+    echo "[ERR] supported values: erauner-colos, erauner-colos-no-longhorn, none"
     exit 1
     ;;
 esac

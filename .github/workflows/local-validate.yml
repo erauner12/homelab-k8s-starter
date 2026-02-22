@@ -1,0 +1,48 @@
+name: local-validate
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  talos-local-validation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y curl jq
+
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v4
+        with:
+          version: v1.30.0
+
+      - name: Install talosctl
+        run: |
+          curl -sL https://talos.dev/install | sh
+          sudo mv ./talosctl /usr/local/bin/talosctl
+          talosctl version --client
+
+      - name: Static validation
+        run: ./scripts/static-validate-fast.sh
+
+      - name: Bootstrap Talos local profile
+        run: ./scripts/talos/local-up.sh
+
+      - name: Validate Talos local profile
+        run: ./scripts/talos/local-validate.sh
+
+      - name: Capture Talos local status on failure
+        if: failure()
+        run: ./scripts/talos/local-status.sh
+
+      - name: Tear down Talos local cluster
+        if: always()
+        run: ./scripts/talos/local-down.sh

@@ -1,16 +1,16 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: infra-app-of-apps
+  name: operators-app-of-apps
   namespace: argocd
   annotations:
-    argocd.argoproj.io/sync-wave: "-90"
+    argocd.argoproj.io/sync-wave: "-100"
 spec:
   project: default
   source:
     repoURL: https://github.com/erauner12/homelab-k8s-starter.git
     targetRevision: main
-    path: clusters/kind/argocd/infrastructure
+    path: clusters/local/argocd/operators
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd

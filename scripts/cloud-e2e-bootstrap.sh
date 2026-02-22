@@ -73,24 +73,6 @@ if [[ "${DESTROY_ON_EXIT}" == "true" ]]; then
   trap cleanup EXIT
 fi
 
-wait_app() {
-  local app="$1"
-  local attempts="${2:-120}"
-  for i in $(seq 1 "${attempts}"); do
-    local sync health
-    sync=$(kubectl -n argocd get application "${app}" -o jsonpath='{.status.sync.status}' 2>/dev/null || true)
-    health=$(kubectl -n argocd get application "${app}" -o jsonpath='{.status.health.status}' 2>/dev/null || true)
-    echo "[INFO] ${app} sync=${sync:-<none>} health=${health:-<none>} elapsed=$(( (i-1)*10 ))s"
-    if [[ "${sync}" == "Synced" && "${health}" == "Healthy" ]]; then
-      return 0
-    fi
-    sleep 10
-  done
-  echo "[ERR] timeout waiting for app ${app}"
-  kubectl -n argocd get application "${app}" -o yaml | sed -n '1,220p' || true
-  return 1
-}
-
 echo "[INFO] apply rackspace cluster: cloudspace=${CLOUDSPACE_NAME} region=${REGION} class=${SERVER_CLASS} bid=${BID_PRICE}"
 terraform -chdir="${TF_DIR}" apply -auto-approve \
   -var="cloudspace_name=${CLOUDSPACE_NAME}" \
@@ -124,25 +106,16 @@ kubectl -n argocd rollout status statefulset/argocd-application-controller --tim
 echo "[INFO] apply cloud bootstrap"
 kubectl apply -k "${ROOT_DIR}/clusters/cloud/bootstrap"
 
-wait_app infra-app-of-apps
-wait_app sops-age-seed
-wait_app argocd-runtime
-wait_app operators-app-of-apps
-wait_app security-app-of-apps
-wait_app app-of-apps
-wait_app security-namespaces
-wait_app cert-manager
-wait_app external-secrets
-wait_app envoy-gateway
-wait_app httpbin
+echo "[INFO] run shared smoke checks (cloud profile)"
+"${ROOT_DIR}/smoke/scripts/run.sh" --profile cloud
 
 if [[ "${RUN_OPTIONAL}" == "true" ]]; then
   echo "[INFO] enable optional cloudflared and exposure-demo apps"
   kubectl apply -f "${ROOT_DIR}/clusters/cloud/argocd/operators/cloudflared-apps-app.yaml"
   kubectl apply -f "${ROOT_DIR}/clusters/cloud/argocd/apps/exposure-demo-app.yaml"
 
-  wait_app cloudflared-apps
-  wait_app exposure-demo
+  echo "[INFO] re-run shared smoke checks after optional app apply"
+  "${ROOT_DIR}/smoke/scripts/run.sh" --profile cloud
 
   kubectl -n network wait --for=condition=Ready pod -l app.kubernetes.io/name=cloudflared --timeout=600s
   kubectl -n network get pods -l app.kubernetes.io/name=cloudflared -o wide

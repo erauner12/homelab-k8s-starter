@@ -1,0 +1,27 @@
+apps_required:
+  - app-of-apps
+  - operators-app-of-apps
+  - security-app-of-apps
+  - apps-app-of-apps
+
+apps_optional:
+  - security-namespaces
+  - cert-manager
+  - external-secrets
+  - httpbin
+
+namespaces_required:
+  - argocd
+
+namespaces_optional:
+  - cert-manager
+  - external-secrets
+  - demo
+
+pods_required_namespaces:
+  - argocd
+
+pods_optional_namespaces:
+  - cert-manager
+  - external-secrets
+  - demo

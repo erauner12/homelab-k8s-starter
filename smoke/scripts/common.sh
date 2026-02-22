@@ -1,34 +1,45 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-APP_TIMEOUT_SECONDS="${APP_TIMEOUT_SECONDS:-300}"
-POD_TIMEOUT_SECONDS="${POD_TIMEOUT_SECONDS:-180}"
-POLL_SECONDS=5
-CLUSTER_NAME="homelab-starter"
-KIND_CONTEXT="kind-${CLUSTER_NAME}"
+APP_TIMEOUT_SECONDS="${APP_TIMEOUT_SECONDS:-600}"
+POD_TIMEOUT_SECONDS="${POD_TIMEOUT_SECONDS:-300}"
+POLL_SECONDS="${POLL_SECONDS:-5}"
+KUBE_CONTEXT="${KUBE_CONTEXT:-}"
 
-require() {
+require_cmd() {
   command -v "$1" >/dev/null 2>&1 || { echo "[ERR] missing tool: $1"; exit 1; }
 }
 
-require kubectl
-
 k() {
-  kubectl --context "${KIND_CONTEXT}" "$@"
+  if [[ -n "${KUBE_CONTEXT}" ]]; then
+    kubectl --context "${KUBE_CONTEXT}" "$@"
+  else
+    kubectl "$@"
+  fi
+}
+
+load_yaml_list() {
+  local file="$1"
+  local key="$2"
+  awk -v section="${key}:" '
+    $0 == section { in_section=1; next }
+    in_section && /^[a-z_]+:/ { in_section=0 }
+    in_section && $1 == "-" { print $2 }
+  ' "$file"
 }
 
 wait_for_app() {
   local app="$1"
   local start now elapsed sync health
-  start=$(date +%s)
+  start="$(date +%s)"
 
   echo "[INFO] waiting for application ${app}"
   while true; do
-    now=$(date +%s)
+    now="$(date +%s)"
     elapsed=$((now - start))
 
-    sync=$(k -n argocd get application "$app" -o jsonpath='{.status.sync.status}' 2>/dev/null || echo "Unknown")
-    health=$(k -n argocd get application "$app" -o jsonpath='{.status.health.status}' 2>/dev/null || echo "Unknown")
+    sync="$(k -n argocd get application "$app" -o jsonpath='{.status.sync.status}' 2>/dev/null || echo "Unknown")"
+    health="$(k -n argocd get application "$app" -o jsonpath='{.status.health.status}' 2>/dev/null || echo "Unknown")"
 
     echo "[INFO] ${app} sync=${sync} health=${health} elapsed=${elapsed}s"
 
@@ -37,7 +48,7 @@ wait_for_app() {
     fi
 
     if [[ "$elapsed" -ge "$APP_TIMEOUT_SECONDS" ]]; then
-      echo "[ERR] timeout waiting for ${app}"
+      echo "[ERR] timeout waiting for application ${app}"
       k -n argocd describe application "$app" || true
       return 1
     fi
@@ -49,14 +60,13 @@ wait_for_app() {
 wait_for_namespace_pods() {
   local ns="$1"
   local start now elapsed
-  start=$(date +%s)
+  start="$(date +%s)"
 
   echo "[INFO] waiting for pods in namespace ${ns}"
   while true; do
-    now=$(date +%s)
+    now="$(date +%s)"
     elapsed=$((now - start))
 
-    # If no pods yet, keep waiting
     if [[ "$(k -n "$ns" get pods --no-headers 2>/dev/null | wc -l | tr -d ' ')" -eq 0 ]]; then
       if [[ "$elapsed" -ge "$POD_TIMEOUT_SECONDS" ]]; then
         echo "[ERR] no pods appeared in namespace ${ns}"
@@ -83,26 +93,8 @@ wait_for_namespace_pods() {
   done
 }
 
-echo "[INFO] validating ArgoCD applications"
-wait_for_app app-of-apps
-wait_for_app operators-app-of-apps
-wait_for_app security-app-of-apps
-wait_for_app apps-app-of-apps
-wait_for_app security-namespaces
-wait_for_app cert-manager
-wait_for_app external-secrets
-wait_for_app httpbin
-
-echo "[INFO] validating namespaces and workloads"
-k get ns cert-manager external-secrets demo >/dev/null
-wait_for_namespace_pods cert-manager
-wait_for_namespace_pods external-secrets
-wait_for_namespace_pods demo
-
-echo "[INFO] validation summary"
-k -n argocd get applications -o wide
-k -n cert-manager get pods -o wide
-k -n external-secrets get pods -o wide
-k -n demo get pods -o wide
-
-echo "[OK] kind profile validation passed"
+print_summary() {
+  echo "[INFO] validation summary"
+  k -n argocd get applications -o wide || true
+  k get pods -A -o wide || true
+}

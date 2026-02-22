@@ -72,4 +72,4 @@ Use Talos local cluster scripts:
 - `scripts/talos/local-status.sh`
 - `scripts/talos/local-down.sh`
 
-Default local bootstrap path applies `clusters/kind/bootstrap` after ArgoCD install to validate GitOps mechanics without cloud-specific dependencies.
+Default local bootstrap path applies `clusters/local/bootstrap` after ArgoCD install to validate GitOps mechanics without cloud-specific dependencies.

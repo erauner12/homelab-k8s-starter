@@ -31,28 +31,8 @@ tasks:
     cmds:
       - ./bin/homelabctl bootstrap run --kubeconfig ~/.kube/config
 
-  kind:up:
-    desc: Create local kind cluster and deploy starter profile
-    cmds:
-      - ./scripts/kind-up.sh
-
-  kind:status:
-    desc: Show status of local kind deployment
-    cmds:
-      - ./scripts/kind-status.sh
-
-  kind:validate:
-    desc: Validate ArgoCD sync and workload readiness on local kind profile
-    cmds:
-      - ./scripts/kind-validate.sh
-
-  kind:down:
-    desc: Delete local kind cluster
-    cmds:
-      - ./scripts/kind-down.sh
-
   talos:local:up:
-    desc: Create local Talos cluster and bootstrap ArgoCD + kind profile
+    desc: Create local Talos cluster and bootstrap ArgoCD local profile
     cmds:
       - ./scripts/talos/local-up.sh
 
@@ -60,6 +40,21 @@ tasks:
     desc: Show local Talos status/context
     cmds:
       - ./scripts/talos/local-status.sh
+
+  talos:local:validate:
+    desc: Run shared smoke checks on local Talos profile
+    cmds:
+      - ./scripts/talos/local-validate.sh
+
+  smoke:local:
+    desc: Run smoke checks on local profile
+    cmds:
+      - ./smoke/scripts/run.sh --profile local --context ${CLUSTER_NAME:-starter-talos}
+
+  smoke:cloud:
+    desc: Run smoke checks on cloud profile
+    cmds:
+      - ./smoke/scripts/run.sh --profile cloud
 
   talos:local:down:
     desc: Destroy local Talos cluster

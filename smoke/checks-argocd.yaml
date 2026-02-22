@@ -1,0 +1,28 @@
+apps_required:
+  - app-of-apps
+  - infra-app-of-apps
+  - operators-app-of-apps
+  - security-app-of-apps
+  - apps-app-of-apps
+  - security-namespaces
+
+apps_optional:
+  - sops-age-seed
+  - argocd-runtime
+  - argocd-projects
+
+namespaces_required:
+  - argocd
+
+namespaces_optional:
+  - cert-manager
+  - external-secrets
+  - demo
+
+pods_required_namespaces:
+  - argocd
+
+pods_optional_namespaces:
+  - cert-manager
+  - external-secrets
+  - demo
