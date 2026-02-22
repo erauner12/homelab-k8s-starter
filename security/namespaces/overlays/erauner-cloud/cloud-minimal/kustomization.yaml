@@ -11,3 +11,4 @@ resources:
   - demo.yaml
   - envoy-gateway-system.yaml
   - security.yaml
+  - tailscale.yaml

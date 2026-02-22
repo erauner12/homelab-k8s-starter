@@ -1,0 +1,31 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Cloud Envoy Gateway install:
+# - installs the Envoy Gateway controller via Helm
+# - defines a minimal public Gateway for HTTP traffic (tunnel-first)
+# - creates a stable ClusterIP Service for Cloudflare Tunnel catch-all origin
+
+helmCharts:
+  - name: gateway-helm
+    # OCI repo root; chart reference becomes:
+    # oci://docker.io/envoyproxy/gateway-helm
+    repo: oci://docker.io/envoyproxy
+    version: 1.7.0
+    releaseName: envoy-gateway
+    namespace: envoy-gateway-system
+    valuesFile: values/values.yaml
+    # Install Envoy Gateway CRDs from the chart.
+    # ArgoCD uses ServerSideApply=true for this app to avoid last-applied
+    # annotation bloat on large CRDs.
+    includeCRDs: true
+
+resources:
+  - envoyproxy.yaml
+  - gatewayclass.yaml
+  - gateway-public.yaml
+  - envoy-public-tunnel-service.yaml
+  - clienttrafficpolicy-drop-envoy-external-address.yaml
+  - envoypatchpolicy-strip-x-envoy-external-address.yaml
+  - origin-selfsigned-issuer.yaml
+  - origin-certificate.yaml

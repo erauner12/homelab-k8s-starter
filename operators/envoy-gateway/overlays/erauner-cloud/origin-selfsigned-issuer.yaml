@@ -1,0 +1,9 @@
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: envoy-origin-selfsigned
+  namespace: network
+  labels:
+    homelab.dev/layer: infra
+spec:
+  selfSigned: {}

@@ -1,0 +1,24 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: tailscale-operator
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-68"
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/erauner12/homelab-k8s-starter.git
+    targetRevision: main
+    path: operators/tailscale-operator/overlays/erauner-cloud
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: tailscale
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=false
+      - ServerSideApply=true
+      - Replace=true

@@ -1,0 +1,55 @@
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: ClientTrafficPolicy
+metadata:
+  name: public-security
+  namespace: network
+  labels:
+    homelab.dev/layer: infra
+spec:
+  targetRef:
+    group: gateway.networking.k8s.io
+    kind: Gateway
+    name: envoy-public
+  headers:
+    # Cloud is tunnel-first and Cloudflare is the edge termination point.
+    #
+    # Security notes:
+    # - HSTS should be set at the Cloudflare layer (zone / rules) once you're
+    #   enforcing HTTPS-only there. Do not set HSTS here unless you're sure
+    #   clients always reach this hostname over HTTPS.
+    # - Cloudflare may add its own headers at the edge; stripping happens at
+    #   the gateway before Cloudflare sees the response.
+
+    # Disable Envoy's X-Envoy-* informational headers to reduce leakage to apps.
+    enableEnvoyHeaders: false
+
+    # Reject requests containing headers with underscores.
+    withUnderscoresAction: RejectRequest
+
+    # Remove internal addressing that was observed reaching backends (e.g. whoami echo):
+    #   X-Envoy-External-Address: 10.x.y.z
+    earlyRequestHeaders:
+      remove:
+        - x-envoy-external-address
+
+    # Strip common information disclosure headers from responses.
+    # Keep this list conservative; add per-app overrides later if needed.
+    lateResponseHeaders:
+      remove:
+        - Server
+        - X-Powered-By
+        - Via
+        - X-AspNet-Version
+        - X-AspNetMvc-Version
+        - X-Runtime
+        - X-Version
+        - X-Rack-Cache
+        - X-Cache
+        - X-Cache-Hits
+        - Age
+        - X-Served-By
+        - X-Backend-Server
+        - X-Varnish
+        - x-envoy-upstream-service-time
+        - x-envoy-attempt-count
+        - x-envoy-decorator-operation

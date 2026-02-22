@@ -1,0 +1,34 @@
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: EnvoyProxy
+metadata:
+  name: envoy-cloud
+  namespace: network
+  labels:
+    homelab.dev/layer: infra
+spec:
+  provider:
+    type: Kubernetes
+    kubernetes:
+      # Cloud is tunnel-first. We don't need a public DO LoadBalancer here; the
+      # Cloudflare Tunnel terminates public TLS and forwards HTTP to the
+      # in-cluster gateway via envoy-public-tunnel Service.
+      envoyService:
+        patch:
+          type: StrategicMerge
+          value:
+            spec:
+              type: ClusterIP
+              # The controller may previously have set externalTrafficPolicy=Local
+              # when this Service was a LoadBalancer/NodePort. That field is invalid
+              # for ClusterIP and will block reconciliation unless explicitly cleared.
+              # Empty string clears the field (Kubernetes validates that this must
+              # be unset for ClusterIP services).
+              externalTrafficPolicy: ""
+      envoyDeployment:
+        container:
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              memory: 256Mi

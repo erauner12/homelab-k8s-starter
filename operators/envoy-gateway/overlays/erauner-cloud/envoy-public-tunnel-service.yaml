@@ -1,0 +1,28 @@
+# Stable ClusterIP Service for Cloudflare Tunnel catch-all origin.
+# cloudflared connects to this Service (not the auto-generated LoadBalancer service).
+apiVersion: v1
+kind: Service
+metadata:
+  name: envoy-public-tunnel
+  namespace: envoy-gateway-system
+  labels:
+    homelab.dev/component: gateway
+    homelab.dev/purpose: tunnel-internal
+spec:
+  type: ClusterIP
+  selector:
+    # Same selector as the auto-generated Envoy proxy Service.
+    app.kubernetes.io/component: proxy
+    app.kubernetes.io/managed-by: envoy-gateway
+    app.kubernetes.io/name: envoy
+    gateway.envoyproxy.io/owning-gateway-name: envoy-public
+    gateway.envoyproxy.io/owning-gateway-namespace: network
+  ports:
+    - name: http
+      port: 80
+      targetPort: 10080
+      protocol: TCP
+    - name: https
+      port: 443
+      targetPort: 10443
+      protocol: TCP

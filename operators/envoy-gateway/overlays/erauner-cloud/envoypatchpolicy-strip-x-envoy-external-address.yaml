@@ -1,0 +1,38 @@
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: EnvoyPatchPolicy
+metadata:
+  name: public-strip-x-envoy-external-address
+  namespace: network
+  labels:
+    homelab.dev/layer: infra
+spec:
+  targetRef:
+    group: gateway.networking.k8s.io
+    kind: Gateway
+    name: envoy-public
+  type: JSONPatch
+  priority: 0
+  jsonPatches:
+    # Remove the header at the routing layer (applies during request processing
+    # and avoids relying on HttpConnectionManager fields that may not exist on
+    # the pinned Envoy build).
+    #
+    # RouteConfiguration names discovered from Envoy admin config_dump:
+    # - network/envoy-public/http
+    # - network/envoy-public/https-origin
+    - type: type.googleapis.com/envoy.config.route.v3.RouteConfiguration
+      name: network/envoy-public/http
+      operation:
+        op: add
+        jsonPath: $.virtual_hosts[*]
+        path: /request_headers_to_remove
+        value:
+          - x-envoy-external-address
+    - type: type.googleapis.com/envoy.config.route.v3.RouteConfiguration
+      name: network/envoy-public/https-origin
+      operation:
+        op: add
+        jsonPath: $.virtual_hosts[*]
+        path: /request_headers_to_remove
+        value:
+          - x-envoy-external-address

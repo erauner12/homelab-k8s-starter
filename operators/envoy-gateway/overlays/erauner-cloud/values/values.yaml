@@ -1,0 +1,25 @@
+# Minimal values for cloud. Keep defaults unless we have a specific reason to diverge.
+#
+# The Envoy Gateway chart installs the controller and CRDs required for EnvoyProxy/Gateway
+# integration. We keep this intentionally small for cloud clusters.
+
+# Cloud nodes are small (~4 vCPU, 8GB). Envoy Gateway's default
+# data-plane requests can prevent scheduling. Tune down the managed Envoy proxy
+# Deployment so the tunnel-first path can come up on a small cluster.
+config:
+  envoyGateway:
+    # Required for EnvoyPatchPolicy resources to take effect.
+    # Without this, the controller will mark them as Disabled.
+    extensionApis:
+      enableEnvoyPatchPolicy: true
+    provider:
+      type: Kubernetes
+      kubernetes:
+        envoyDeployment:
+          container:
+            resources:
+              requests:
+                cpu: 50m
+                memory: 128Mi
+              limits:
+                memory: 256Mi

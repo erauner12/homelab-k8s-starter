@@ -3,3 +3,4 @@ kind: Kustomization
 resources:
   - cert-manager-app.yaml
   - external-secrets-app.yaml
+  - envoy-gateway-app.yaml

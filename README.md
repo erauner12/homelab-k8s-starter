@@ -8,10 +8,14 @@ This repository intentionally uses ArgoCD only.
 - ArgoCD app-of-apps bootstrap manifests
 - cert-manager
 - external-secrets
+- envoy-gateway (cloud profile)
 - security namespace baseline
 - demo app
 - local kind smoke-test profile
 - optional Rackspace Spot Terraform pattern
+
+Optional operators:
+- tailscale-operator (requires OAuth secret setup)
 
 ## Local test workflow (recommended first)
 1. Run static validation first (auto-selects full if Helm 3 is available):
@@ -45,6 +49,10 @@ Workflow sequence:
 
 ## Cloud/bootstrap workflow
 Use the cluster app-of-apps manifests under `clusters/` and configure repository credentials and secrets from `docs/SECRETS.md`.
+
+Operator notes:
+- Envoy Gateway is enabled in the cloud operators profile.
+- Tailscale operator is staged as optional until OAuth secret setup is complete. See `docs/TAILSCALE.md`.
 
 ## Notes
 - Keep secret files as templates only in Git.

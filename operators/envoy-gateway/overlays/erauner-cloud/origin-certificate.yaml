@@ -1,0 +1,23 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: envoy-public-origin
+  namespace: network
+  labels:
+    homelab.dev/layer: infra
+spec:
+  secretName: envoy-public-origin-tls
+  issuerRef:
+    name: envoy-origin-selfsigned
+    kind: Issuer
+  dnsNames:
+    # cloudflared connects to the in-cluster Service by DNS name. Include the
+    # full service DNS name so SNI validation can be enabled later if desired.
+    - envoy-public-tunnel.envoy-gateway-system.svc.cluster.local
+    # Convenience (not strictly required, but cheap).
+    - envoy-public-tunnel.envoy-gateway-system.svc
+    - envoy-public-tunnel.envoy-gateway-system
+  privateKey:
+    rotationPolicy: Always
+    algorithm: ECDSA
+    size: 256

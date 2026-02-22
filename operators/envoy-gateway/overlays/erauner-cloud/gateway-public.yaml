@@ -1,0 +1,51 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: envoy-public
+  namespace: network
+  labels:
+    homelab.dev/layer: infra
+    # Used by external-dns gateway sources (defense-in-depth)
+    exposure: external
+  annotations:
+    # External-DNS: set this to your Cloudflare tunnel endpoint.
+    # Example: <uuid>.cfargotunnel.com
+    external-dns.alpha.kubernetes.io/target: REPLACE_WITH_TUNNEL_TARGET.cfargotunnel.com
+spec:
+  gatewayClassName: envoy-cloud
+  listeners:
+    - name: http
+      protocol: HTTP
+      port: 80
+      allowedRoutes:
+        namespaces:
+          from: All
+        kinds:
+          # Explicitly set group to match apiserver defaulting and avoid ArgoCD drift.
+          - group: gateway.networking.k8s.io
+            kind: HTTPRoute
+          - group: gateway.networking.k8s.io
+            kind: GRPCRoute
+    # Origin TLS listener (for Cloudflare -> cloudflared -> Envoy).
+    #
+    # This is intentionally separate from edge TLS:
+    # - Cloudflare still terminates public TLS for clients.
+    # - This listener enables HTTPS between cloudflared and the gateway so we
+    #   can move Cloudflare SSL mode from Flexible -> Full/Strict safely.
+    - name: https-origin
+      protocol: HTTPS
+      port: 443
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - group: ""
+            kind: Secret
+            name: envoy-public-origin-tls
+      allowedRoutes:
+        namespaces:
+          from: All
+        kinds:
+          - group: gateway.networking.k8s.io
+            kind: HTTPRoute
+          - group: gateway.networking.k8s.io
+            kind: GRPCRoute
