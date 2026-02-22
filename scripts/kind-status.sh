@@ -6,7 +6,11 @@ kubectl get nodes -o wide || true
 
 echo ""
 echo "[INFO] argocd applications"
-kubectl -n argocd get applications || true
+kubectl -n argocd get applications -o wide || true
+
+echo ""
+echo "[INFO] app-of-apps details"
+kubectl -n argocd get application app-of-apps -o yaml | sed -n '1,140p' || true
 
 echo ""
 echo "[INFO] key namespaces"

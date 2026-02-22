@@ -19,6 +19,14 @@ This repository includes a local `kind` profile for smoke testing the starter st
 ./scripts/kind-up.sh
 ```
 
+The script now waits for:
+- ArgoCD core rollout
+- `app-of-apps` to reach `Synced` + `Healthy`
+- child applications to be created
+- expected namespaces (`cert-manager`, `external-secrets`, `demo`) to exist
+
+If reconciliation fails, the script prints ArgoCD diagnostics before exiting.
+
 ## Check status
 ```bash
 ./scripts/kind-status.sh
