@@ -50,3 +50,13 @@ tasks:
     desc: Delete local kind cluster
     cmds:
       - ./scripts/kind-down.sh
+
+  cloud:e2e:
+    desc: Provision cloud cluster, bootstrap ArgoCD, and validate app health (keeps cluster running)
+    cmds:
+      - ./scripts/cloud-e2e-bootstrap.sh
+
+  cloud:e2e:destroy:
+    desc: Run cloud e2e and destroy cluster on exit
+    cmds:
+      - ./scripts/cloud-e2e-bootstrap.sh --destroy-on-exit

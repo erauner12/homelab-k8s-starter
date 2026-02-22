@@ -51,6 +51,10 @@ Workflow sequence:
 ## Cloud/bootstrap workflow
 Use the cluster app-of-apps manifests under `clusters/` and configure repository credentials and secrets from `docs/SECRETS.md`.
 
+Repeatable cloud e2e bootstrap:
+- `task cloud:e2e` keeps cluster running for manual validation
+- `task cloud:e2e:destroy` destroys cluster automatically at script exit
+
 Operator notes:
 - Envoy Gateway is enabled in the cloud operators profile.
 - Cloudflared apps tunnel is staged as optional. See `docs/CLOUDFLARE.md`.
