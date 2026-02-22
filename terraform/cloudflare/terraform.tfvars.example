@@ -1,0 +1,5 @@
+zone                 = "example.com"
+cloudflare_account_id = "replace-with-account-id"
+
+# Export token instead of committing it:
+# export TF_VAR_cloudflare_api_token="..."

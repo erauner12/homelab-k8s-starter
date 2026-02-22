@@ -12,6 +12,7 @@ This starter repo keeps only templates. Do not commit real secrets.
 
 2. External provider/API secrets as needed by enabled components
    - Cloudflare token template: `secrets/templates/cloudflare-api-token.sops.example.yaml`
+   - Cloudflared tunnel token template: `secrets/templates/cloudflared-apps-token.sops.example.yaml`
    - Tailscale operator OAuth template: `secrets/templates/tailscale-operator-oauth-secret.sops.example.yaml`
    - Apply as Kubernetes Secret `operator-oauth` in namespace `tailscale`
 
@@ -26,5 +27,6 @@ Use:
 ```bash
 kubectl -n argocd get secret homelab-k8s-repo
 kubectl -n network get secret cloudflare-api-token
+kubectl -n network get secret cloudflared-apps-token
 kubectl -n tailscale get secret operator-oauth
 ```

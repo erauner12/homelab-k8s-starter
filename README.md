@@ -15,6 +15,7 @@ This repository intentionally uses ArgoCD only.
 - optional Rackspace Spot Terraform pattern
 
 Optional operators:
+- cloudflared-apps (requires Cloudflare tunnel token setup)
 - tailscale-operator (requires OAuth secret setup)
 
 ## Local test workflow (recommended first)
@@ -52,6 +53,7 @@ Use the cluster app-of-apps manifests under `clusters/` and configure repository
 
 Operator notes:
 - Envoy Gateway is enabled in the cloud operators profile.
+- Cloudflared apps tunnel is staged as optional. See `docs/CLOUDFLARE.md`.
 - Tailscale operator is staged as optional until OAuth secret setup is complete. See `docs/TAILSCALE.md`.
 
 ## Notes

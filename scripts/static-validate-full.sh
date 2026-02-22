@@ -30,6 +30,7 @@ KUSTOMIZE_PATHS=(
   "operators/cert-manager/overlays/erauner-cloud"
   "operators/external-secrets/overlays/erauner-cloud"
   "operators/envoy-gateway/overlays/erauner-cloud"
+  "infrastructure/cloudflared-apps/overlays/erauner-cloud"
   "security/namespaces/overlays/kind"
   "security/namespaces/overlays/erauner-cloud"
   "apps/poc-httpbin/base"
