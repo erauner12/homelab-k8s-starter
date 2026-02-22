@@ -7,8 +7,12 @@ The starter includes a Tailscale operator app manifest, but it is optional until
 Template:
 - `secrets/templates/tailscale-operator-oauth-secret.sops.example.yaml`
 
-Create encrypted secret file for GitOps at:
-- `operators/tailscale-operator/base/operator-oauth-secret.sops.yaml`
+Apply a Secret named `operator-oauth` in namespace `tailscale` (keys: `client_id`, `client_secret`).
+
+For local testing, you can decrypt and apply from your private repo copy:
+```bash
+sops -d /path/to/operator-oauth-secret.sops.yaml | kubectl apply -f -
+```
 
 ## 2. Enable optional app set
 
@@ -18,7 +22,7 @@ Edit:
 Add:
 - `tailscale-operator-app.yaml`
 
-Or apply optional kustomization directly for review:
+Or apply optional kustomization directly:
 - `clusters/cloud/argocd/operators/kustomization.optional.yaml`
 
 ## 3. Verify

@@ -13,7 +13,7 @@ This starter repo keeps only templates. Do not commit real secrets.
 2. External provider/API secrets as needed by enabled components
    - Cloudflare token template: `secrets/templates/cloudflare-api-token.sops.example.yaml`
    - Tailscale operator OAuth template: `secrets/templates/tailscale-operator-oauth-secret.sops.example.yaml`
-   - Tailscale operator GitOps secret path: `operators/tailscale-operator/base/operator-oauth-secret.sops.yaml`
+   - Apply as Kubernetes Secret `operator-oauth` in namespace `tailscale`
 
 ## Recommended workflow
 1. Copy template to a local working file.
