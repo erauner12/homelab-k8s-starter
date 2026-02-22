@@ -1,7 +1,7 @@
-.PHONY: help preflight static-validate static-validate-fast static-validate-full plan bootstrap talos-local-up talos-local-status talos-local-validate talos-local-down smoke-local smoke-cloud argocd-get-admin argocd-ui
+.PHONY: help preflight static-validate static-validate-fast static-validate-full plan bootstrap talos-local-up talos-local-status talos-local-validate talos-local-down smoke-local smoke-cloud argocd-get-admin argocd-ui kube-contexts
 
 help:
-	@echo "Targets: preflight, static-validate, static-validate-fast, static-validate-full, plan, bootstrap, talos-local-up, talos-local-status, talos-local-validate, talos-local-down, smoke-local, smoke-cloud, argocd-get-admin, argocd-ui"
+	@echo "Targets: preflight, static-validate, static-validate-fast, static-validate-full, plan, bootstrap, talos-local-up, talos-local-status, talos-local-validate, talos-local-down, smoke-local, smoke-cloud, argocd-get-admin, argocd-ui, kube-contexts"
 
 preflight:
 	@./scripts/pre-bootstrap-test.sh
@@ -38,6 +38,9 @@ argocd-get-admin:
 
 argocd-ui:
 	@./scripts/argocd-ui.sh
+
+kube-contexts:
+	@./scripts/kube-contexts.sh
 
 smoke-local:
 	@./smoke/scripts/run.sh --profile local --context $${CLUSTER_NAME:-starter-talos}

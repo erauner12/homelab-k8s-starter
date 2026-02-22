@@ -26,8 +26,10 @@ Optional operators:
    - `./scripts/static-validate-full.sh`
 2. Create local Talos cluster and deploy starter profile:
    - `./scripts/talos/local-up.sh`
+   - guardrail: this script now refuses to start if other Docker k8s test containers are running; set `ALLOW_OTHER_K8S_CONTAINERS=true` only when intentional
 3. Check status:
    - `./scripts/talos/local-status.sh`
+   - `./scripts/kube-contexts.sh --verify`
 4. Run smoke validation:
    - `./scripts/talos/local-validate.sh`
    - Or directly: `./smoke/scripts/run.sh --profile local --context starter-talos`

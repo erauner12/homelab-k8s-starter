@@ -71,6 +71,11 @@ tasks:
     cmds:
       - ./scripts/argocd-ui.sh
 
+  kube:contexts:
+    desc: List kube contexts related to this starter repo
+    cmds:
+      - ./scripts/kube-contexts.sh
+
   cloud:e2e:
     desc: Provision cloud cluster, bootstrap ArgoCD, and validate app health (keeps cluster running)
     cmds:

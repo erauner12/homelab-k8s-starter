@@ -20,6 +20,7 @@ APPLY_NODEIP_PATCH="${APPLY_NODEIP_PATCH:-false}"
 TALOS_CREATE_WAIT="${TALOS_CREATE_WAIT:-false}"
 ALLOW_MULTI_CLUSTER="${ALLOW_MULTI_CLUSTER:-false}"
 ALLOW_UNSUPPORTED_LONGHORN_DOCKER="${ALLOW_UNSUPPORTED_LONGHORN_DOCKER:-false}"
+ALLOW_OTHER_K8S_CONTAINERS="${ALLOW_OTHER_K8S_CONTAINERS:-false}"
 
 require() {
   command -v "$1" >/dev/null 2>&1 || { echo "[ERR] missing tool: $1"; exit 1; }
@@ -44,6 +45,22 @@ if [[ "${PROVISIONER}" == "docker" && "${ALLOW_MULTI_CLUSTER}" != "true" ]]; the
     echo "[ERR] found other running Talos cluster(s):"
     printf '%s\n' "${other_clusters}" | sed 's/^/  - /'
     echo "[ERR] destroy them first, or set ALLOW_MULTI_CLUSTER=true to override."
+    exit 1
+  fi
+fi
+
+if [[ "${PROVISIONER}" == "docker" && "${ALLOW_OTHER_K8S_CONTAINERS}" != "true" ]]; then
+  # Guard against unrelated local cluster containers consuming resources and causing flaky API timeouts.
+  other_k8s_containers="$(
+    docker ps --format '{{.Names}}' \
+      | rg 'control-plane|worker|kind-' \
+      | rg -v "^${CLUSTER_NAME}-(controlplane|worker)-" || true
+  )"
+  if [[ -n "${other_k8s_containers}" ]]; then
+    echo "[ERR] found other running k8s-style Docker containers:"
+    printf '%s\n' "${other_k8s_containers}" | sed 's/^/  - /'
+    echo "[ERR] stop them first to avoid local API instability,"
+    echo "[ERR] or set ALLOW_OTHER_K8S_CONTAINERS=true to override."
     exit 1
   fi
 fi
