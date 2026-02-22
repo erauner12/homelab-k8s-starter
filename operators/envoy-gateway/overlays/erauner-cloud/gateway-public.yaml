@@ -10,7 +10,7 @@ metadata:
   annotations:
     # External-DNS: set this to your Cloudflare tunnel endpoint.
     # Example: <uuid>.cfargotunnel.com
-    external-dns.alpha.kubernetes.io/target: REPLACE_WITH_TUNNEL_TARGET.cfargotunnel.com
+    external-dns.alpha.kubernetes.io/target: tunnel.erauner.cloud
 spec:
   gatewayClassName: envoy-cloud
   listeners:
