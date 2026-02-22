@@ -3,12 +3,4 @@ kind: Kustomization
 
 resources:
   - argocd-cm-ssa.yaml
-
-patches:
-  - path: repo-server-tools-ssa.yaml
-    target:
-      group: apps
-      version: v1
-      kind: Deployment
-      name: argocd-repo-server
-      namespace: argocd
+  - repo-server-tools-ssa.yaml
