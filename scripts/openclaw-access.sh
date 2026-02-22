@@ -8,12 +8,13 @@ SECRET_KEY="gateway-token"
 KUBE_CONTEXT="${KUBE_CONTEXT:-}"
 COPY=false
 SHOW_URL_ONLY=false
+SHOW_TOKENIZED_URL_ONLY=false
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/lib/kube-common.sh"
 
 usage() {
   cat <<USAGE
-Usage: $0 [--context <name>] [--copy-token] [--url-only]
+Usage: $0 [--context <name>] [--copy-token] [--url-only] [--tokenized-url-only]
 
 Print OpenClaw access details from Kubernetes:
 - Tailscale URL from ingress status
@@ -23,6 +24,7 @@ Options:
   --context <name>  kubectl context to use
   --copy-token      copy token to clipboard (macOS pbcopy)
   --url-only        print URL only
+  --tokenized-url-only print URL with #token fragment only
   -h, --help        show this help
 
 Examples:
@@ -39,6 +41,8 @@ while [[ $# -gt 0 ]]; do
       COPY=true; shift ;;
     --url-only)
       SHOW_URL_ONLY=true; shift ;;
+    --tokenized-url-only)
+      SHOW_TOKENIZED_URL_ONLY=true; shift ;;
     -h|--help)
       usage; exit 0 ;;
     *)
@@ -58,6 +62,7 @@ if [[ -z "$host" ]]; then
 fi
 
 url="https://${host}/"
+tokenized_url=""
 
 if $SHOW_URL_ONLY; then
   echo "$url"
@@ -71,9 +76,17 @@ if [[ -z "$token_b64" ]]; then
 fi
 
 token="$(printf '%s' "$token_b64" | base64 --decode)"
+tokenized_url="${url%/}/#token=${token}"
+
+if $SHOW_TOKENIZED_URL_ONLY; then
+  echo "$tokenized_url"
+  exit 0
+fi
 
 echo "OpenClaw URL:"
 echo "  ${url}"
+echo "Tokenized URL (direct login):"
+echo "  ${tokenized_url}"
 echo ""
 echo "Gateway token (paste into Control UI settings):"
 echo "  ${token}"
