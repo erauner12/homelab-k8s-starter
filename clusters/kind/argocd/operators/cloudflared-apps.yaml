@@ -1,21 +1,26 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: security-namespaces
+  name: cloudflared-apps
   namespace: argocd
   annotations:
-    argocd.argoproj.io/sync-wave: "-120"
+    argocd.argoproj.io/sync-wave: "-70"
 spec:
-  project: security
+  project: operators
   source:
     repoURL: https://github.com/erauner12/homelab-k8s-starter.git
     targetRevision: main
-    path: security/namespaces/overlays/erauner-cloud/cloud-minimal
+    path: infrastructure/cloudflared-apps/overlays/erauner-cloud
   destination:
     server: https://kubernetes.default.svc
+    namespace: network
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
     syncOptions:
       - CreateNamespace=false
+      - ServerSideApply=true
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true
+      - RespectIgnoreDifferences=true

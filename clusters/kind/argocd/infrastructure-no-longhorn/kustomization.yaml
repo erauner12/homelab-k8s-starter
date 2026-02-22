@@ -3,5 +3,7 @@ kind: Kustomization
 resources:
   - argocd-projects.yaml
   - argocd-runtime.yaml
+  - sops-age-seed.yaml
+  - argocd-tailscale-access.yaml
   - cilium-config.yaml
   - storage-config.yaml

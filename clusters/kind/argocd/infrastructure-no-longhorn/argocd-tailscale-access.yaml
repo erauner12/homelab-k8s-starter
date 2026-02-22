@@ -1,21 +1,24 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: security-namespaces
+  name: argocd-tailscale-access
   namespace: argocd
   annotations:
-    argocd.argoproj.io/sync-wave: "-120"
+    argocd.argoproj.io/sync-wave: "-40"
 spec:
-  project: security
+  project: infrastructure
   source:
     repoURL: https://github.com/erauner12/homelab-k8s-starter.git
     targetRevision: main
-    path: security/namespaces/overlays/erauner-cloud/cloud-minimal
+    path: infrastructure/argocd-tailscale-access/base
   destination:
     server: https://kubernetes.default.svc
+    namespace: argocd
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
     syncOptions:
       - CreateNamespace=false
+      - ServerSideApply=true
+      - Replace=true
