@@ -9,3 +9,9 @@ helmCharts:
     releaseName: cloudflared-apps
     namespace: network
     valuesFile: values/values.yaml
+
+patches:
+  - path: patch-security-context.yaml
+    target:
+      kind: Deployment
+      name: cloudflared-apps
