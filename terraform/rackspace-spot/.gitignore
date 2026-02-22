@@ -1,0 +1,13 @@
+# Terraform state (contains secrets)
+*.tfstate
+*.tfstate.backup
+tfplan
+
+# Generated kubeconfig (contains credentials)
+kubeconfig-*.yaml
+
+# Decrypted secrets (should only exist encrypted)
+# secrets.sops.yaml is tracked but encrypted
+
+# Terraform cache (lock file IS tracked for reproducible builds)
+.terraform/

@@ -1,0 +1,19 @@
+# Example tfvars - copy to terraform.tfvars and customize
+
+cloudspace_name    = "starter-cloud"
+region             = "us-east-iad-1"
+kubernetes_version = "1.31.1"
+ha_control_plane   = false
+cni                = "calico"
+
+# Node pool settings
+server_class        = "gp.vs1.medium-iad"
+bid_price           = 0.01  # $0.01/hour per node
+autoscaling_enabled = true
+min_nodes           = 2
+max_nodes           = 4
+
+# Optional: Webhook for preemption alerts
+# preemption_webhook = "https://hooks.slack.com/services/..."
+
+tags = ["homelab", "cloud", "spot"]
