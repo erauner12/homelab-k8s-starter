@@ -18,10 +18,22 @@ This repository intentionally uses ArgoCD only.
    - `./scripts/kind-up.sh`
 2. Check status:
    - `./scripts/kind-status.sh`
-3. Tear down:
+3. Run validation gates:
+   - `./scripts/kind-validate.sh`
+4. Tear down:
    - `./scripts/kind-down.sh`
 
 See `docs/KIND.md` for details.
+
+## Continuous validation
+This repository includes a GitHub Actions workflow that runs the same smoke gate on `pull_request` and `push` to `main`:
+- `.github/workflows/kind-validate.yml`
+
+Workflow sequence:
+1. `./scripts/kind-up.sh`
+2. `./scripts/kind-validate.sh`
+3. `./scripts/kind-status.sh` (on failure)
+4. `./scripts/kind-down.sh` (always)
 
 ## Cloud/bootstrap workflow
 Use the cluster app-of-apps manifests under `clusters/` and configure repository credentials and secrets from `docs/SECRETS.md`.

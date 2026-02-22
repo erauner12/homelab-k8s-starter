@@ -26,6 +26,11 @@ tasks:
     cmds:
       - ./scripts/kind-status.sh
 
+  kind:validate:
+    desc: Validate ArgoCD sync and workload readiness on local kind profile
+    cmds:
+      - ./scripts/kind-validate.sh
+
   kind:down:
     desc: Delete local kind cluster
     cmds:

@@ -1,7 +1,7 @@
-.PHONY: help preflight plan bootstrap kind-up kind-status kind-down
+.PHONY: help preflight plan bootstrap kind-up kind-status kind-validate kind-down
 
 help:
-	@echo "Targets: preflight, plan, bootstrap, kind-up, kind-status, kind-down"
+	@echo "Targets: preflight, plan, bootstrap, kind-up, kind-status, kind-validate, kind-down"
 
 preflight:
 	@./scripts/pre-bootstrap-test.sh
@@ -17,6 +17,9 @@ kind-up:
 
 kind-status:
 	@./scripts/kind-status.sh
+
+kind-validate:
+	@./scripts/kind-validate.sh
 
 kind-down:
 	@./scripts/kind-down.sh

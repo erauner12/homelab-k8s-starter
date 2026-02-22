@@ -1,0 +1,38 @@
+name: kind-validate
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  kind-validation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v4
+
+      - name: Set up kind
+        uses: helm/kind-action@v1
+        with:
+          install_only: true
+
+      - name: Bootstrap kind profile
+        run: ./scripts/kind-up.sh
+
+      - name: Validate kind profile
+        run: ./scripts/kind-validate.sh
+
+      - name: Collect diagnostics on failure
+        if: failure()
+        run: ./scripts/kind-status.sh
+
+      - name: Tear down kind cluster
+        if: always()
+        run: ./scripts/kind-down.sh

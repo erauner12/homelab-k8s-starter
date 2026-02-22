@@ -27,10 +27,22 @@ The script now waits for:
 
 If reconciliation fails, the script prints ArgoCD diagnostics before exiting.
 
+The scripts pin all `kubectl` commands to `kind-homelab-starter` so they do not depend on your global `kubectl` current-context.
+
 ## Check status
 ```bash
 ./scripts/kind-status.sh
 ```
+
+## Validate end-to-end readiness
+```bash
+./scripts/kind-validate.sh
+```
+
+Validation checks:
+- ArgoCD applications are `Synced` and `Healthy`
+- required namespaces exist
+- pods are `Ready` in `cert-manager`, `external-secrets`, and `demo`
 
 ## Access ArgoCD UI
 ```bash
@@ -46,3 +58,4 @@ Open: `http://localhost:8081`
 ## Notes
 - This is a local smoke profile, not the full cloud profile.
 - It intentionally avoids components that require environment-specific secrets.
+- CI uses the same workflow in `.github/workflows/kind-validate.yml`.
