@@ -1,0 +1,16 @@
+# TaskTrove namespace - self-hosted task management app
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: tasktrove
+  labels:
+    homelab.dev/layer: apps
+    homelab.dev/managed-by: argocd
+    homelab.dev/type: productivity
+    homelab.dev/storage-backend: truenas
+    pod-security.kubernetes.io/enforce: restricted
+  annotations:
+    homelab.dev/description: "TaskTrove task management application"
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/warn: restricted

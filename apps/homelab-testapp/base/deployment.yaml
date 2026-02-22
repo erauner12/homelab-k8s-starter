@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: homelab-testapp
+  labels:
+    app.kubernetes.io/name: homelab-testapp
+  annotations:
+    # Manifest service integration - enables Versions tab in Backstage
+    manifest.homelab.dev/component-name: "homelab-testapp"
+    # Sync wave - deploy after ConfigMap (0) and Service (1)
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: homelab-testapp
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: homelab-testapp
+      annotations:
+        smoke-test.marker: "SYNC-TEST-V3"
+    spec:
+      containers:
+        - name: homelab-testapp
+          image: traefik/whoami:latest
+          args:
+            - --port=8080
+          ports:
+            - containerPort: 8080
+              name: http
+          envFrom:
+            - configMapRef:
+                name: homelab-testapp-config
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: 100m
+              memory: 64Mi

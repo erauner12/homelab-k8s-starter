@@ -1,0 +1,91 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: giraffe-cloud-minimal
+  namespace: argocd
+  labels:
+    app.kubernetes.io/managed-by: argocd
+    homelab.dev/managed-by: argocd
+    homelab.dev/layer: infrastructure
+    app.kubernetes.io/name: giraffe
+    app.kubernetes.io/part-of: observability
+    homelab.dev/cluster: cloud
+  annotations:
+    argocd.argoproj.io/sync-wave: "20"
+    homelab.dev/description: "Minimal cloud monitoring stack (kube-prometheus-stack)"
+spec:
+  project: observability
+  sources:
+    - repoURL: https://prometheus-community.github.io/helm-charts
+      chart: kube-prometheus-stack
+      targetRevision: "80.8.0"
+      helm:
+        # kube-prometheus-stack CRDs are manually applied with SSA (kubectl apply --server-side)
+        # to avoid annotation size limit errors. ArgoCD should not manage them.
+        skipCrds: true
+        valueFiles:
+          - $values/apps/giraffe/base/values.yaml
+          - $values/apps/giraffe/overlays/erauner-cloud/production/values.yaml
+    - repoURL: git@github.com:erauner/homelab-k8s.git
+      targetRevision: master
+      ref: values
+    # HTTPRoute for Grafana external access
+    - repoURL: git@github.com:erauner/homelab-k8s.git
+      targetRevision: master
+      path: apps/giraffe/overlays/erauner-cloud/production
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: observability
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      # SSA required for kube-prometheus-stack CRDs which exceed client-side annotation limits
+      - ServerSideApply=true
+      - SkipHooks=true
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true
+      - RespectIgnoreDifferences=true
+      - CreateNamespace=false
+      - ApplyOutOfSyncOnly=true
+      - SkipDryRunOnMissingResource=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+  ignoreDifferences:
+    # Grafana admin Secret is auto-generated; ignore data changes to prevent loops
+    - group: ""
+      kind: Secret
+      name: giraffe-cloud-minimal-grafana
+      jsonPointers:
+        - /data
+    - group: ""
+      kind: Namespace
+      jsonPointers:
+        - /metadata/managedFields
+        - /metadata/annotations
+        - /metadata/labels
+    - group: ""
+      kind: PersistentVolumeClaim
+      jsonPointers:
+        - /spec/volumeName
+        - /spec/storageClassName
+    - group: apps
+      kind: StatefulSet
+      jsonPointers:
+        - /spec/volumeClaimTemplates
+    - group: monitoring.coreos.com
+      kind: Prometheus
+      jsonPointers:
+        - /status
+        - /metadata/resourceVersion
+    - group: monitoring.coreos.com
+      kind: Alertmanager
+      jsonPointers:
+        - /status
+        - /metadata/resourceVersion
+  revisionHistoryLimit: 3

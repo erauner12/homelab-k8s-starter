@@ -1,0 +1,31 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: argocd-webhook
+  namespace: argocd
+  labels:
+    homelab.dev/layer: "infra-platform"
+    app.kubernetes.io/name: "argocd"
+    app.kubernetes.io/component: "webhook"
+  annotations:
+    homelab.dev/managed-by: "argocd"
+    homelab.dev/description: "ArgoCD webhook endpoint for GitHub integration"
+    external-dns.alpha.kubernetes.io/hostname: argocd.erauner.dev
+    external-dns.alpha.kubernetes.io/target: tunnel.erauner.dev
+    external-dns.alpha.kubernetes.io/cloudflare-proxied: "true"
+spec:
+  parentRefs:
+  - name: envoy-public
+    namespace: network
+    sectionName: http
+  hostnames:
+  - argocd.erauner.dev
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /api/webhook
+    backendRefs:
+    - name: argocd-server
+      port: 80
+      weight: 100

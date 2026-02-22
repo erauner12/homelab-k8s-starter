@@ -1,0 +1,38 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: security-app-of-apps
+  namespace: argocd
+  labels:
+    homelab.dev/component: "argocd"
+    homelab.dev/layer: "security"
+    homelab.dev/managed-by: "argocd"
+    homelab.dev/cluster: "cloud"
+  annotations:
+    # Deploy after operators (-150) but before infrastructure (-200)
+    argocd.argoproj.io/sync-wave: "-180"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: infrastructure
+  source:
+    repoURL: git@github.com:erauner/homelab-k8s.git
+    targetRevision: master
+    path: clusters/cloud/argocd/security
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: false       # CRITICAL: Never auto-prune security app-of-apps
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=false
+    - ApplyOutOfSyncOnly=true
+    - ServerSideApply=false
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m

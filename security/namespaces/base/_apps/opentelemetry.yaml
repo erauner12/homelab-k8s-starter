@@ -1,0 +1,16 @@
+# OpenTelemetry namespace - distributed tracing
+# Migrated from infrastructure/namespaces (issue #950)
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: opentelemetry
+  labels:
+    homelab.dev/layer: apps
+    homelab.dev/managed-by: argocd
+    homelab.dev/type: observability
+    pod-security.kubernetes.io/enforce: restricted
+  annotations:
+    homelab.dev/description: "OpenTelemetry distributed tracing"
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/warn: restricted

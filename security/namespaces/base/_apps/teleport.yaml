@@ -1,0 +1,18 @@
+# Teleport namespace - secure access plane
+# Migrated from infrastructure/namespaces (issue #950)
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: teleport
+  labels:
+    homelab.dev/layer: apps
+    homelab.dev/managed-by: argocd
+    homelab.dev/type: access
+    # Storage intent: Longhorn for Teleport state
+    homelab.dev/storage-backend: longhorn
+    pod-security.kubernetes.io/enforce: baseline
+  annotations:
+    homelab.dev/description: "Teleport secure access plane"
+    pod-security.kubernetes.io/audit: baseline
+    pod-security.kubernetes.io/enforce: baseline
+    pod-security.kubernetes.io/warn: baseline

@@ -1,0 +1,17 @@
+# Registry namespace - Nexus container registry
+# Added to fix OutOfSync for security-namespaces
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: registry
+  labels:
+    homelab.dev/layer: apps
+    homelab.dev/managed-by: argocd
+    homelab.dev/type: registry
+    homelab.dev/storage-backend: truenas
+    pod-security.kubernetes.io/enforce: baseline
+  annotations:
+    homelab.dev/description: "Nexus container registry"
+    pod-security.kubernetes.io/audit: baseline
+    pod-security.kubernetes.io/enforce: baseline
+    pod-security.kubernetes.io/warn: baseline

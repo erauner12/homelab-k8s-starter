@@ -1,0 +1,13 @@
+# Longhorn default backup target
+# NOTE: This resource cannot be deleted, only modified
+# Kept as stub after migrating to VolSync (#1209)
+# Empty backupTargetURL disables Longhorn backups
+apiVersion: longhorn.io/v1beta2
+kind: BackupTarget
+metadata:
+  name: default
+  namespace: longhorn-system
+spec:
+  backupTargetURL: ""
+  credentialSecret: ""
+  pollInterval: "0"

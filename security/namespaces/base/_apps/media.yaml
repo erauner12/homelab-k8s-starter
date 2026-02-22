@@ -1,0 +1,20 @@
+# Media namespace - Plex, *arr apps, and download management
+# Migrated from CreateNamespace=true in media-stack app (issue #950)
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: media
+  labels:
+    homelab.dev/layer: apps
+    homelab.dev/managed-by: argocd
+    homelab.dev/type: media
+    # Storage intent: TrueNAS is the default migration target for new PVCs
+    # Exceptions: Longhorn for SQLite configs, Synology for static media libraries
+    homelab.dev/storage-backend: truenas
+    # PSS privileged required for: Plex hostNetwork, qBittorrentVPN NET_ADMIN
+    pod-security.kubernetes.io/enforce: privileged
+  annotations:
+    homelab.dev/description: "Media stack - Plex, *arr apps, and download management"
+    pod-security.kubernetes.io/audit: baseline
+    pod-security.kubernetes.io/enforce: privileged
+    pod-security.kubernetes.io/warn: baseline

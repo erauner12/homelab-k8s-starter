@@ -1,0 +1,19 @@
+# Envoy Gateway namespace - API gateway controller
+# Migrated from infrastructure/namespaces (issue #950)
+# Note: Uses 'baseline' PSS because Envoy Gateway's shutdown-manager sidecar
+# doesn't support restricted security context configuration via CRD
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: envoy-gateway-system
+  labels:
+    homelab.dev/layer: infra
+    homelab.dev/managed-by: argocd
+    homelab.dev/type: networking
+    homelab.dev/security-layer: "true"
+    pod-security.kubernetes.io/enforce: baseline
+  annotations:
+    homelab.dev/description: "Envoy Gateway API gateway controller"
+    pod-security.kubernetes.io/audit: baseline
+    pod-security.kubernetes.io/enforce: baseline
+    pod-security.kubernetes.io/warn: baseline

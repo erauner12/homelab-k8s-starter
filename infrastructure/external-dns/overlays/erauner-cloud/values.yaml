@@ -1,0 +1,30 @@
+provider: cloudflare
+sources:
+  - ingress
+  - service
+  - gateway-httproute
+policy: sync
+txtOwnerId: "homelab-cloud"
+domainFilters:
+  - erauner.cloud
+extraArgs:
+  # Defense-in-depth: two independent safety rails
+  # 1. Label filter: only process routes NOT labeled as internal
+  - --label-filter=dns-scope notin (internal)
+  # 2. Gateway filter: only process routes attached to the public gateway
+  - --gateway-label-filter=exposure=external
+  # 3. Exclude private IPs - Gateway status has ClusterIP which Cloudflare rejects
+  #    for proxied records. This forces use of the annotation target (tunnel CNAME).
+  - --exclude-target-net=10.0.0.0/8
+env:
+  - name: CF_API_TOKEN
+    valueFrom:
+      secretKeyRef:
+        name: external-dns-cloudflare-secret
+        key: api-token
+resources:
+  requests:
+    memory: 32Mi
+    cpu: 10m
+  limits:
+    memory: 64Mi

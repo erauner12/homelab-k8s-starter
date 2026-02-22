@@ -1,0 +1,18 @@
+# AI namespace - personal AI assistants and AI-related workloads
+# Created for OpenClaw deployment
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ai
+  labels:
+    homelab.dev/layer: apps
+    homelab.dev/managed-by: argocd
+    homelab.dev/type: ai
+    # Storage intent: TrueNAS iSCSI for stateful AI assistant data
+    homelab.dev/storage-backend: truenas
+    pod-security.kubernetes.io/enforce: baseline
+  annotations:
+    homelab.dev/description: "AI assistants and automation workloads"
+    pod-security.kubernetes.io/audit: baseline
+    pod-security.kubernetes.io/enforce: baseline
+    pod-security.kubernetes.io/warn: baseline

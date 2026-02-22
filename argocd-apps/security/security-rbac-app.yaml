@@ -1,0 +1,33 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: security-rbac
+  namespace: argocd
+  labels:
+    homelab.dev/layer: security
+    homelab.dev/category: rbac
+  annotations:
+    # Run after namespaces exist
+    argocd.argoproj.io/sync-wave: "-87"
+spec:
+  project: infrastructure
+  source:
+    repoURL: git@github.com:erauner/homelab-k8s.git
+    targetRevision: master
+    path: ./security/rbac/overlays/erauner-home
+  destination:
+    server: https://kubernetes.default.svc
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=false
+    - ServerSideApply=false
+    - RespectIgnoreDifferences=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m

@@ -1,0 +1,22 @@
+# ClusterRole for network operators to fully manage Gateway API resources
+# Full access to gateways, policies, and supporting infrastructure
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: netops-gateway-admin
+  labels:
+    homelab.dev/rbac-scope: platform
+    homelab.dev/managed-by: argocd
+rules:
+- apiGroups: ["gateway.networking.k8s.io"]
+  resources: ["*"]
+  verbs: ["*"]
+- apiGroups: ["gateway.envoyproxy.io"]
+  resources: ["*"]
+  verbs: ["*"]
+- apiGroups: [""]
+  resources: ["secrets", "services", "configmaps"]
+  verbs: ["*"]
+- apiGroups: ["apps"]
+  resources: ["deployments", "daemonsets"]
+  verbs: ["get", "list", "watch", "update", "patch"]

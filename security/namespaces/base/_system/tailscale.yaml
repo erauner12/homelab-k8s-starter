@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: tailscale
+  labels:
+    homelab.dev/managed-by: argocd
+    homelab.dev/tier: platform
+    homelab.dev/layer: security
+    # Pod Security Standards - privileged required for Tailscale proxies
+    # which need NET_ADMIN capability for userspace networking
+    pod-security.kubernetes.io/enforce: privileged
+    pod-security.kubernetes.io/warn: privileged

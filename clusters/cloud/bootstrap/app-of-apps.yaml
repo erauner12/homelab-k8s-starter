@@ -1,0 +1,36 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: app-of-apps
+  namespace: argocd
+  labels:
+    homelab.dev/component: "argocd"
+    homelab.dev/layer: "infra"
+    homelab.dev/managed-by: "argocd"
+    homelab.dev/cluster: "cloud"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: app-of-apps
+  source:
+    repoURL: git@github.com:erauner/homelab-k8s.git
+    targetRevision: master
+    path: clusters/cloud/argocd/apps
+    kustomize: {}
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=false
+    - ApplyOutOfSyncOnly=true
+    - ServerSideApply=false
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m

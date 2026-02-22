@@ -1,0 +1,16 @@
+# Kyverno namespace - policy engine
+# Migrated from operators/kyverno (issue #950)
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: kyverno
+  labels:
+    homelab.dev/layer: infra
+    homelab.dev/managed-by: argocd
+    homelab.dev/type: operators
+    pod-security.kubernetes.io/enforce: restricted
+  annotations:
+    homelab.dev/description: "Kyverno policy engine"
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/warn: restricted

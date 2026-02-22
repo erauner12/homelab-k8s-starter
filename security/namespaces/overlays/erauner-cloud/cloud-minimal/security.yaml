@@ -1,0 +1,14 @@
+# Security namespace - common destination for shared secrets/policies
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: security
+  labels:
+    homelab.dev/layer: security
+    homelab.dev/managed-by: argocd
+    pod-security.kubernetes.io/enforce: restricted
+  annotations:
+    homelab.dev/description: "Shared security namespace (cloud-minimal)"
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/warn: restricted

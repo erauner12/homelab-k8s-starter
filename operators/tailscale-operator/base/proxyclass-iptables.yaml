@@ -1,0 +1,23 @@
+# ProxyClass to force iptables mode instead of nftables
+# Required for compatibility with Cilium kube-proxy replacement
+#
+# Cilium compatibility requires socketLB.hostNamespaceOnly=true in Cilium config
+# (configured in omni repo: patches/cilium-install-home.yaml)
+#
+# This ProxyClass forces iptables mode which is more compatible than nftables
+# when Cilium runs with kubeProxyReplacement=true.
+#
+# See: https://tailscale.com/kb/1236/kubernetes-operator
+# See: https://tailscale.com/kb/1294/firewall-mode
+apiVersion: tailscale.com/v1alpha1
+kind: ProxyClass
+metadata:
+  name: iptables-proxy
+  namespace: tailscale
+spec:
+  statefulSet:
+    pod:
+      tailscaleContainer:
+        env:
+          - name: TS_DEBUG_FIREWALL_MODE
+            value: "iptables"

@@ -1,0 +1,16 @@
+# Storage namespace - SeaweedFS distributed object storage
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: storage
+  labels:
+    homelab.dev/layer: infrastructure
+    homelab.dev/managed-by: argocd
+    homelab.dev/type: storage
+    homelab.dev/storage-backend: truenas
+    pod-security.kubernetes.io/enforce: baseline
+  annotations:
+    homelab.dev/description: "SeaweedFS S3-compatible object storage for backups"
+    pod-security.kubernetes.io/audit: baseline
+    pod-security.kubernetes.io/enforce: baseline
+    pod-security.kubernetes.io/warn: baseline

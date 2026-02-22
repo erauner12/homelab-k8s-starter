@@ -1,0 +1,18 @@
+# Tenant 789 Production namespace - test application
+# For CI/CD pipeline validation testing
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: tenant-789-prod
+  labels:
+    homelab.dev/layer: apps
+    homelab.dev/managed-by: argocd
+    homelab.dev/type: test-application
+    homelab.dev/tenant: "789"
+    homelab.dev/environment: prod
+    pod-security.kubernetes.io/enforce: restricted
+  annotations:
+    homelab.dev/description: "Test application namespace for CI/CD validation"
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/warn: restricted

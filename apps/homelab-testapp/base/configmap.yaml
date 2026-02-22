@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: homelab-testapp-config
+  labels:
+    app.kubernetes.io/name: homelab-testapp
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+data:
+  # Smoke test marker - updated during sync tests
+  SMOKE_TEST_MARKER: "SYNC-TEST-V2"
+
+  # Boot delay for testing slow startups (seconds)
+  BOOT_DELAY_SECONDS: "0"
+
+  # Component name for manifest-service integration
+  COMPONENT_NAME: "homelab-testapp"

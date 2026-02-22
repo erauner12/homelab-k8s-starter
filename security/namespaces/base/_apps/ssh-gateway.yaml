@@ -1,0 +1,18 @@
+# SSH-gateway namespace - SSH bastion
+# Migrated from infrastructure/namespaces (issue #950)
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ssh-gateway
+  labels:
+    homelab.dev/layer: apps
+    homelab.dev/managed-by: argocd
+    homelab.dev/type: access
+    # Storage intent: Longhorn for SSH configs
+    homelab.dev/storage-backend: longhorn
+    pod-security.kubernetes.io/enforce: baseline
+  annotations:
+    homelab.dev/description: "SSH gateway bastion"
+    pod-security.kubernetes.io/audit: baseline
+    pod-security.kubernetes.io/enforce: baseline
+    pod-security.kubernetes.io/warn: baseline

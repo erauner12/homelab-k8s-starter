@@ -1,0 +1,14 @@
+# Low media priority class - evicted first during resource pressure
+# Created after worker1 incident (2026-01-15) where Plex I/O caused node failure
+# Usage: spec.priorityClassName: low-media
+
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: low-media
+  labels:
+    homelab.dev/component: scheduling
+description: "Media workloads - Plex, *arr apps, streaming (evict first during pressure)"
+value: 100000
+globalDefault: false
+preemptionPolicy: PreemptLowerPriority

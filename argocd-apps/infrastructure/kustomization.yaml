@@ -1,0 +1,54 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Infrastructure configuration - uses CRDs from operators
+# Operators are managed separately in argocd-apps/operators/
+# Security is managed separately in argocd-apps/security/
+
+resources:
+  # CRDs (Wave -100)
+  - crds/crds-app.yaml
+
+  # Platform (Waves -98 to -74)
+  # Note: namespaces now managed by security-namespaces app in security-app-of-apps
+  - platform/spegel-app.yaml
+  - platform/admission-policies-app.yaml
+  - platform/coredns-app.yaml
+  - platform/secrets-stores-app.yaml
+  - platform/external-secrets-stores-app.yaml
+  - platform/external-secrets-defs-app.yaml
+  - platform/network-secrets-app.yaml
+  - platform/pod-gc-app.yaml
+  - platform/reloader-app.yaml
+  - platform/reflector-app.yaml
+
+  # Networking (Waves -70 to -25)
+  - networking/external-dns-app.yaml
+  - networking/external-dns-unifi-app.yaml
+  - networking/cert-manager-issuers-app.yaml
+  - networking/cloudflared-app.yaml
+  - networking/envoy-gateway-app.yaml
+  - networking/envoy-gateway-config-app.yaml
+  - networking/hubble-ui-app.yaml
+  - networking/cilium-config-app.yaml
+
+  # Identity (Waves -58 to -54)
+  - identity/dex-app.yaml
+  - identity/oauth2-proxy-app.yaml
+
+  # Storage/Platform (Waves -30 to -28)
+  - platform/ssh-gateway-app.yaml
+  - storage/longhorn-config-app.yaml
+  - storage/backup-system-app.yaml
+  - storage/truenas-config-app.yaml
+
+  # ArgoCD runtime config (Wave -20)
+  - self/argocd-runtime-app.yaml
+  - self/argocd-access-app.yaml
+
+  # Observability (Wave 20)
+  - observability/giraffe-app.yaml
+
+components:
+  # Removed argocd-app-sync-ops - each app defines its own syncPolicy for clarity
+  - ../../kustomize/components/argocd-app-ignore-common

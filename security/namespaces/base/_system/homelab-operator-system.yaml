@@ -1,0 +1,15 @@
+# Homelab Operator System namespace - Backend/Frontend/Cluster controller
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: homelab-operator-system
+  labels:
+    homelab.dev/layer: infra
+    homelab.dev/managed-by: argocd
+    homelab.dev/type: operators
+    pod-security.kubernetes.io/enforce: restricted
+  annotations:
+    homelab.dev/description: "Homelab Operator - Backend/Frontend/Cluster controller"
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/warn: restricted

@@ -1,0 +1,16 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Pod Priority Classes for workload tiering
+# Protects critical workloads during resource pressure
+# Created after worker1 I/O incident (2026-01-15)
+
+resources:
+  - critical-infrastructure.yaml
+  - high-observability.yaml
+  - standard-apps.yaml
+  - low-media.yaml
+
+commonLabels:
+  homelab.dev/managed-by: argocd
+  homelab.dev/component: scheduling

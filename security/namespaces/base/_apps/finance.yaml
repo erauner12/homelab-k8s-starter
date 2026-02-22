@@ -1,0 +1,22 @@
+# Finance namespace - Firefly III personal finance
+# Migrated from apps/firefly/base/namespace.yaml (issue #950)
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: finance
+  labels:
+    homelab.dev/layer: apps
+    homelab.dev/managed-by: argocd
+    homelab.dev/environment: production
+    homelab.dev/app: firefly
+    # Storage intent: Longhorn for Firefly data
+    homelab.dev/storage-backend: longhorn
+    pod-security.kubernetes.io/enforce: baseline
+    pod-security.kubernetes.io/audit: baseline
+    pod-security.kubernetes.io/warn: baseline
+  annotations:
+    homelab.dev/description: "Firefly III personal finance management"
+    homelab.dev/gitops-source: homelab-k8s
+    pod-security.kubernetes.io/enforce: baseline
+    pod-security.kubernetes.io/audit: baseline
+    pod-security.kubernetes.io/warn: baseline

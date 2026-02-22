@@ -1,0 +1,39 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: argocd-runtime
+  namespace: argocd
+  labels:
+    homelab.dev/layer: infra
+    homelab.dev/category: self
+  annotations:
+    # Must run early:
+    # - enables ArgoCD Kustomize features (helm/exec/plugins)
+    # - installs repo-server tools (ksops/sops) used by downstream apps
+    argocd.argoproj.io/sync-wave: "-90"
+spec:
+  project: app-of-apps
+  source:
+    repoURL: git@github.com:erauner/homelab-k8s.git
+    targetRevision: master
+    path: ./infrastructure/argocd-runtime/overlays/erauner-cloud
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: false # never auto-delete ArgoCD runtime/config
+      selfHeal: true
+    syncOptions:
+      # Required for partial "*-ssa.yaml" resources (patching bootstrap-installed ArgoCD).
+      - ServerSideApply=true
+      - CreateNamespace=false
+      - ApplyOutOfSyncOnly=true
+      - RespectIgnoreDifferences=true
+      - SkipDryRunOnMissingResource=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m

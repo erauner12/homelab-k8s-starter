@@ -1,0 +1,28 @@
+# Expose the whoami service to the Tailscale tailnet
+# This creates a Tailscale proxy that routes traffic to the whoami pods
+#
+# After applying, the service will be accessible at:
+#   http://whoami-tailnet.<your-tailnet>.ts.net
+# Or via the Tailscale IP assigned to the proxy
+apiVersion: v1
+kind: Service
+metadata:
+  name: whoami-tailnet
+  namespace: tailscale
+  annotations:
+    # This annotation tells the Tailscale operator to expose this service
+    tailscale.com/expose: "true"
+    # Optional: Set a custom hostname (default is the service name)
+    # tailscale.com/hostname: "whoami"
+    # Optional: Apply specific Tailscale tags (requires ACL configuration)
+    # tailscale.com/tags: "tag:k8s"
+spec:
+  type: LoadBalancer
+  # Use the Tailscale loadBalancerClass to route through Tailscale
+  loadBalancerClass: tailscale
+  selector:
+    app: whoami
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80

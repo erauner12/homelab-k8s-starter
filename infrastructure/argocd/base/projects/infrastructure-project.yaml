@@ -1,0 +1,70 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: infrastructure
+  namespace: argocd
+  labels:
+    homelab.dev/managed-by: "argocd"
+    homelab.dev/layer: "infra"
+  annotations:
+    argocd.argoproj.io/sync-wave: "-200"
+    homelab.dev/description: "Core infrastructure components managed by ArgoCD"
+spec:
+  description: Core infrastructure components managed by ArgoCD
+
+  # Source repositories
+  sourceRepos:
+  - 'ssh://git@github.com/erauner/homelab-k8s'
+  - 'git@github.com:erauner/homelab-k8s.git'
+  - 'https://github.com/erauner/homelab-k8s.git'
+  # homelab-tasks operator repo
+  - 'git@github.com:erauner/homelab-tasks.git'
+  # OCI Helm registries
+  - 'docker.io/envoyproxy'
+  - 'ghcr.io/stacklok/toolhive'
+  # Nexus Helm repository proxy (internal caching proxy for all Helm charts)
+  - 'https://nexus.erauner.dev/repository/*'
+  - 'https://nexus.erauner.dev/repository/*/'
+  # Common Helm chart repos (legacy - migrating to Nexus proxy)
+  - 'https://charts.jetstack.io'
+  - 'https://charts.external-secrets.io'
+  - 'https://kubernetes-sigs.github.io/external-dns/'
+  - 'https://kubernetes-sigs.github.io/descheduler/'
+  - 'https://kyverno.github.io/kyverno/'
+  - 'https://charts.dexidp.io'
+  - 'https://charts.kubito.dev'
+  - 'https://oauth2-proxy.github.io/manifests'
+  - 'https://cloudnative-pg.github.io/charts'
+  - 'https://rocm.github.io/gpu-operator'
+  - 'https://seaweedfs.github.io/seaweedfs/helm'
+
+  # Destination - full cluster access for infrastructure
+  destinations:
+  - namespace: '*'
+    server: https://kubernetes.default.svc
+
+  # Allow all cluster resources (CRDs, ClusterRoles, Namespaces, etc.)
+  clusterResourceWhitelist:
+  - group: '*'
+    kind: '*'
+
+  # Allow all namespaced resources (operators need broad access)
+  namespaceResourceWhitelist:
+  - group: '*'
+    kind: '*'
+
+  # Roles for RBAC
+  roles:
+  - name: admin
+    policies:
+    - p, proj:infrastructure:admin, applications, *, infrastructure/*, allow
+    - p, proj:infrastructure:admin, repositories, *, *, allow
+    groups:
+    - platform-team
+
+  - name: viewer
+    policies:
+    - p, proj:infrastructure:viewer, applications, get, infrastructure/*, allow
+    - p, proj:infrastructure:viewer, logs, get, infrastructure/*, allow
+    groups:
+    - all-users

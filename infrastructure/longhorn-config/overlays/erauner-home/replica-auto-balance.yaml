@@ -1,0 +1,10 @@
+apiVersion: longhorn.io/v1beta2
+kind: Setting
+metadata:
+  name: replica-auto-balance
+  namespace: longhorn-system
+# Enable automatic replica rebalancing when nodes become unbalanced
+# Options: disabled, least-effort, best-effort
+# - least-effort: Only balance when a new volume needs replicas
+# - best-effort: Actively rebalance existing replicas across nodes
+value: "best-effort"

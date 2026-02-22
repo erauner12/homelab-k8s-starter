@@ -1,0 +1,16 @@
+# Homepage namespace - dashboard
+# Migrated from CreateNamespace=true (issue #950)
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: homepage
+  labels:
+    homelab.dev/layer: apps
+    homelab.dev/managed-by: argocd
+    homelab.dev/type: dashboard
+    pod-security.kubernetes.io/enforce: restricted
+  annotations:
+    homelab.dev/description: "Homepage dashboard"
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/warn: restricted

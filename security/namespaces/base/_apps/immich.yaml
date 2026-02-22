@@ -1,0 +1,19 @@
+# Immich namespace - Self-hosted photo and video management
+# Created for issue #1070 (Immich deployment)
+# Note: Uses baseline PSS because Dragonfly operator doesn't support restricted PSS
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: immich
+  labels:
+    homelab.dev/layer: apps
+    homelab.dev/managed-by: argocd
+    homelab.dev/type: photos
+    # Storage intent: Synology for photo library, TrueNAS iSCSI for database
+    homelab.dev/storage-backend: synology
+    pod-security.kubernetes.io/enforce: baseline
+  annotations:
+    homelab.dev/description: "Immich - Self-hosted photo and video backup solution"
+    pod-security.kubernetes.io/audit: baseline
+    pod-security.kubernetes.io/enforce: baseline
+    pod-security.kubernetes.io/warn: baseline

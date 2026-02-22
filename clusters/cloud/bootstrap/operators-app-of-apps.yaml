@@ -1,0 +1,38 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: operators-app-of-apps
+  namespace: argocd
+  labels:
+    homelab.dev/component: "argocd"
+    homelab.dev/layer: "operators"
+    homelab.dev/managed-by: "argocd"
+    homelab.dev/cluster: "cloud"
+  annotations:
+    # Deploy before infrastructure (-200) but after CRDs bootstrap
+    argocd.argoproj.io/sync-wave: "-150"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: infrastructure
+  source:
+    repoURL: git@github.com:erauner/homelab-k8s.git
+    targetRevision: master
+    path: clusters/cloud/argocd/operators
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: false       # CRITICAL: Never auto-prune operators app-of-apps
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=false
+    - ApplyOutOfSyncOnly=true
+    - ServerSideApply=false
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m

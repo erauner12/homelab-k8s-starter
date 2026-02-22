@@ -1,0 +1,31 @@
+provider: cloudflare
+sources:
+  - ingress
+  - service
+  - gateway-httproute
+  - gateway-grpcroute
+  - gateway-tcproute
+  - gateway-tlsroute
+  - gateway-udproute
+policy: sync
+txtOwnerId: "homelab"
+domainFilters:
+  - erauner.dev
+extraArgs:
+  # Defense-in-depth: two independent safety rails
+  # 1. Label filter: only process routes NOT labeled as internal
+  - --label-filter=dns-scope notin (internal)
+  # 2. Gateway filter: only process routes attached to the public gateway
+  - --gateway-label-filter=exposure=external
+env:
+  - name: CF_API_TOKEN
+    valueFrom:
+      secretKeyRef:
+        name: external-dns-cloudflare-secret
+        key: api-token
+resources:
+  requests:
+    memory: 32Mi
+    cpu: 10m
+  limits:
+    memory: 64Mi

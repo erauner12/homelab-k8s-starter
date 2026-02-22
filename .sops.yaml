@@ -1,0 +1,4 @@
+creation_rules:
+  - path_regex: \.sops\.ya?ml$
+    encrypted_regex: '^(data|stringData|\.dockerconfigjson)$'
+    age: age1jjls7fqmd742cxu5pvuecvfg9hwxchpt2xxf5uuh72ypus9fzazqkzwk3y

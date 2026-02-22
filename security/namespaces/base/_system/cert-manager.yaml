@@ -1,0 +1,16 @@
+# Cert-manager namespace - certificate management
+# Migrated from infrastructure/namespaces (issue #950)
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: cert-manager
+  labels:
+    homelab.dev/layer: infra
+    homelab.dev/managed-by: argocd
+    homelab.dev/type: certificates
+    pod-security.kubernetes.io/enforce: restricted
+  annotations:
+    homelab.dev/description: "Cert-manager certificate management"
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/warn: restricted

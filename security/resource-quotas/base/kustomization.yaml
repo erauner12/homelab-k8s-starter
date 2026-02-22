@@ -1,0 +1,22 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Resource Quotas and LimitRanges
+# Currently empty - add quotas as needed without breaking existing workloads
+#
+# When adding quotas, start with high ceilings to avoid disruption:
+# - Monitor actual usage first (Prometheus/Grafana)
+# - Set quotas at 2-3x observed usage initially
+# - Tighten gradually after validation
+
+resources: []
+  # Future: per-namespace quotas
+  # - namespaces/auth-quota.yaml
+  # - namespaces/security-quota.yaml
+  # - defaults/default-limitrange.yaml
+
+labels:
+  - pairs:
+      homelab.dev/managed-by: argocd
+      homelab.dev/security-layer: "true"
+    includeSelectors: false

@@ -1,0 +1,8 @@
+apiVersion: longhorn.io/v1beta2
+kind: Setting
+metadata:
+  name: replica-auto-balance-disk-pressure-percentage
+  namespace: longhorn-system
+# Trigger rebalancing when a node's disk usage exceeds this percentage
+# Default is 90%, lowering to 80% to trigger earlier and prevent issues
+value: "80"

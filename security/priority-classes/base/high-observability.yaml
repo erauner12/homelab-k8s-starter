@@ -1,0 +1,14 @@
+# High observability priority class
+# Created after worker1 incident (2026-01-15) where Plex I/O caused node failure
+# Usage: spec.priorityClassName: high-observability
+
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: high-observability
+  labels:
+    homelab.dev/component: scheduling
+description: "Observability stack - Prometheus, Mimir, Loki, Tempo, Grafana"
+value: 900000
+globalDefault: false
+preemptionPolicy: PreemptLowerPriority

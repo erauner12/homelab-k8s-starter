@@ -1,0 +1,21 @@
+apiVersion: externaldns.k8s.io/v1alpha1
+kind: DNSEndpoint
+metadata:
+  name: homelab-tunnel
+  namespace: network
+  annotations:
+    # This tunnel is for HOMELAB APPS only (auth.erauner.dev, gitea.erauner.dev, etc.)
+    # MCP tunnels (mcp.work.erauner.dev, desktop.lab.erauner.dev) are managed separately
+    # via Terraform in the repoprompt-bridge repo to avoid conflicts
+    homelab.dev/component: "homelab-apps-tunnel"
+spec:
+  endpoints:
+    - dnsName: tunnel.erauner.dev
+      recordType: CNAME
+      targets:
+        # Use the original homelab tunnel (manually created, GitOps-managed)
+        # This is NOT the same as MCP tunnels which are Terraform-managed
+        - b34066a6-6949-421a-bf3c-503d4b3063ca.cfargotunnel.com
+      providerSpecific:
+        - name: external-dns.alpha.kubernetes.io/cloudflare-proxied
+          value: "true"

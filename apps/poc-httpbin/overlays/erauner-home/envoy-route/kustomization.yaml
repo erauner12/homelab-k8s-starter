@@ -1,0 +1,12 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+metadata:
+  labels:
+    homelab.dev/layer: stack
+
+namespace: poc-httpbin
+
+resources:
+  - ../../../base
+  - httproute.yaml

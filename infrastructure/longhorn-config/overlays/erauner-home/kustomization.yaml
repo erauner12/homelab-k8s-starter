@@ -1,0 +1,46 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: longhorn-system
+
+# IMPORTANT: Longhorn Installation Managed by Talos
+# ================================================
+# Longhorn is installed at the Talos/Omni layer via inline manifests.
+# This kustomization ONLY manages post-installation configurations:
+# - Dashboard access (HTTPRoute + TLS)
+# - Storage settings (replica count, auto-balance)
+#
+# NOTE: Longhorn backups have been replaced by VolSync (#1203, #1208)
+# VolSync provides storage-agnostic backups to Backblaze B2
+#
+# DO NOT add HelmRelease or installation resources here.
+# See: omni/patches/longhorn-install-home.yaml for installation details
+
+resources:
+  # Base longhorn configuration (monitoring, storage settings)
+  - ../../base
+  # Dashboard access configuration
+  # Note: HTTPRoute uses envoy-public-internal gateway which automatically
+  # creates internal DNS records via external-dns-unifi (no DNSEndpoint needed)
+  - httproute.yaml
+  - certificate.yaml
+  # Storage settings (cluster-specific)
+  # Note: storage-minimal-available-percentage is defined in base with 15%
+  - default-replica-count.yaml
+  - replica-auto-balance.yaml
+  - replica-auto-balance-threshold.yaml
+  - orphan-auto-deletion.yaml
+
+generatorOptions:
+  disableNameSuffixHash: true
+
+patches:
+  # Add Homepage annotations to Longhorn frontend service
+  - path: service-patch.yaml
+    target:
+      kind: Service
+      name: longhorn-frontend
+  # Override storage over-provisioning percentage for home cluster
+  - path: storage-settings.yaml
+    target:
+      kind: Setting
+      name: storage-over-provisioning-percentage

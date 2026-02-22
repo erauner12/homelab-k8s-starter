@@ -1,0 +1,16 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Security policies ArgoCD Applications
+# Centralized security configurations that apply across all layers (apps, infra, operators)
+# Waves -89 to -86: namespaces, network policies, RBAC, quotas
+
+resources:
+  - security-namespaces-app.yaml
+  - security-network-policies-app.yaml
+  - security-rbac-app.yaml
+  - security-resource-quotas-app.yaml
+  - security-priority-classes-app.yaml
+
+components:
+  - ../../kustomize/components/argocd-app-ignore-common

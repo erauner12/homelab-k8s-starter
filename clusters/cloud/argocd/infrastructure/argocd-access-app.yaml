@@ -1,0 +1,35 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: argocd-access
+  namespace: argocd
+  labels:
+    homelab.dev/layer: infra
+    homelab.dev/category: self
+  annotations:
+    # After envoy-gateway exists (routes attach), but still early in infra.
+    argocd.argoproj.io/sync-wave: "-40"
+spec:
+  project: app-of-apps
+  source:
+    repoURL: git@github.com:erauner/homelab-k8s.git
+    targetRevision: master
+    path: ./infrastructure/argocd-access/overlays/erauner-cloud
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=false
+      - ApplyOutOfSyncOnly=true
+      - RespectIgnoreDifferences=true
+      - SkipDryRunOnMissingResource=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m

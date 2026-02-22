@@ -1,0 +1,17 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Platform/team RBAC
+# Centralized RBAC for platform access control (not app-specific)
+
+resources:
+  # Gateway API RBAC
+  - gateway-api/clusterrole-app-team-httproute-editor.yaml
+  - gateway-api/clusterrole-netops-gateway-admin.yaml
+  - gateway-api/rolebinding-homepage-app-team-routes.yaml
+
+labels:
+  - pairs:
+      homelab.dev/managed-by: argocd
+      homelab.dev/security-layer: "true"
+    includeSelectors: false

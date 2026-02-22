@@ -1,0 +1,55 @@
+# Tailscale Kubernetes Operator Helm Values
+# https://tailscale.com/kb/1236/kubernetes-operator
+
+# OAuth credentials are provided via pre-created Secret named "operator-oauth"
+# with keys: client_id and client_secret
+# Leaving oauth block empty uses the default Secret lookup
+oauth: {}
+
+# Install CRDs with the chart (recommended)
+installCRDs: true
+
+operatorConfig:
+  # ACL tag for the operator itself
+  # You must make the operator owner of this tag in your Tailscale ACL
+  defaultTags:
+    - "tag:k8s-operator"
+
+  # Operator container configuration
+  logging: "info"
+  hostname: "tailscale-operator"
+
+  # Schedule on Linux nodes only
+  nodeSelector:
+    kubernetes.io/os: linux
+
+  # Resource limits for the operator
+  resources:
+    requests:
+      cpu: 10m
+      memory: 64Mi
+    limits:
+      memory: 256Mi
+
+# Proxy configuration for services exposed via Tailscale
+proxyConfig:
+  # ACL tag for proxies created by the operator
+  # You must make the operator owner of this tag in your Tailscale ACL
+  defaultTags: "tag:k8s"
+
+  # Firewall mode: auto selects best mode based on environment
+  # - "auto": automatically detect (recommended)
+  # - "nftables": use nftables
+  # - "iptables": use iptables
+  firewallMode: auto
+
+# Ingress class for Tailscale Ingress resources
+ingressClass:
+  name: "tailscale"
+  enabled: true
+
+# API server proxy is disabled by default (security best practice)
+# Enable only if you need remote kubectl access via Tailscale
+apiServerProxyConfig:
+  mode: "false"
+  allowImpersonation: "false"

@@ -1,0 +1,9 @@
+# Longhorn backup compression setting
+# NOTE: This resource cannot be deleted, only modified
+# Kept as stub after migrating to VolSync (#1209)
+apiVersion: longhorn.io/v1beta2
+kind: Setting
+metadata:
+  name: backup-compression-method
+  namespace: longhorn-system
+value: none

@@ -1,0 +1,17 @@
+# Auth-system namespace - alternative oauth2-proxy deployment
+# Migrated from apps/oauth2-proxy/base/namespace.yaml (issue #950)
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: auth-system
+  labels:
+    homelab.dev/layer: infra
+    homelab.dev/managed-by: argocd
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/warn: restricted
+  annotations:
+    homelab.dev/description: "Auth system namespace for oauth2-proxy"
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/warn: restricted

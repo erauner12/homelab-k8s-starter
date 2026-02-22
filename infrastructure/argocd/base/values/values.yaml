@@ -1,0 +1,738 @@
+# ArgoCD Helm values
+# Global configuration
+global:
+  domain: argocd.erauner.dev
+  logging:
+    level: info
+    format: json
+  # Allow scheduling on controlplane nodes for GitOps resilience
+  # Even if workers are down, ArgoCD can still reconcile
+  tolerations:
+    - key: "node-role.kubernetes.io/control-plane"
+      operator: "Exists"
+      effect: "NoSchedule"
+
+# Configs
+configs:
+  params:
+    # Allow managing resources in any namespace
+    "application.namespaces": "*"
+    # Enable Helm dependency build
+    "server.disable.helm.dependency.build": "false"
+    # Sync window duration
+    "controller.default.sync.window.duration": "3h"
+    # Increase timeout for large apps
+    "controller.operation.processors": "10"
+    "controller.status.processors": "20"
+    "controller.self.heal.timeout.seconds": "5"
+    # Application parallelism settings
+    "applicationcontroller.parallelism.limit": "10"
+    # Repository server timeout
+    "reposerver.parallelism.limit": "5"
+    # Enhanced performance settings
+    "controller.repo.server.timeout.seconds": "300"
+    # TEMPORARILY REDUCED: Changed from 300s to 90s for testing without webhooks
+    "controller.app.resync": "90"
+    # K8s API client tuning (CNOE benchmark: 52% faster syncs)
+    # Default: qps=20, burst=30. Optimal for scale: qps=150, burst=300
+    "controller.k8s.client.qps": "150"
+    "controller.k8s.client.burst": "300"
+    # Cache expiration tuning - reduces manifest regeneration overhead
+    # Default app state cache varies, diff cache default is short
+    # Extending these reduces repeated work when nothing has changed
+    "controller.app.state.cache.expiration": "60m"
+    "controller.diff.cache.expiration": "60m"
+
+  cm:
+    # Kustomize build options to match Flux behavior and enable KSOPS
+    # --enable-exec is required for KSOPS exec plugins to work
+    "kustomize.buildOptions": "--load-restrictor=LoadRestrictionsNone --enable-helm --enable-alpha-plugins --enable-exec"
+    # URL for the ArgoCD server
+    "url": "https://argocd.erauner.dev"
+    # Disable anonymous access
+    "users.anonymous.enabled": "false"
+    # Resource tracking method (matches Flux-style)
+    "application.resourceTrackingMethod": "annotation+label"
+
+    # Reconciliation settings
+    "timeout.reconciliation": "180s"
+    "timeout.hard.reconciliation": "0s"
+    # Jitter spreads reconciliation load, prevents thundering herd on restarts
+    "timeout.reconciliation.jitter": "1m"
+
+    # OIDC Configuration - Dex as external OIDC provider
+    # Dex is deployed separately in the 'dex' namespace and provides Auth0 integration
+    # The clientSecret references the argocd-oidc-secret created by ExternalSecret
+    "oidc.config": |
+      name: Dex
+      issuer: https://dex.erauner.dev
+      clientId: argocd
+      clientSecret: $argocd-oidc-secret:oidc.dex.clientSecret
+      requestedScopes: ["openid", "profile", "email", "groups", "offline_access"]
+      requestedIDTokenClaims: {"groups": {"essential": true}}
+      claimMapping:
+        groups: "https://claims.erauner.dev/groups"
+
+    # Resource exclusions - minimal approach to avoid excluding app resources
+    "resource.exclusions": |
+      # Exclude noisy events
+      - apiGroups:
+        - events.k8s.io
+        - ""
+        kinds:
+        - Event
+
+    # DO NOT SET resource.inclusions - it turns exclusions into an allow-list
+    # Setting resource.inclusions causes ALL non-included resources to be excluded,
+    # which breaks ArgoCD's ability to manage its own Applications and AppProjects
+    "resource.inclusions": ""
+
+    # Application-level sync defaults
+    "application.instanceLabelKey": "argocd.argoproj.io/instance"
+
+    # Comparison options
+    # ignoreDifferencesOnResourceUpdates: reduces reconciliation noise when
+    # external controllers update status fields on resources ArgoCD manages
+    "resource.compareoptions": |
+      ignoreAggregatedRoles: true
+      ignoreDifferencesOnResourceUpdates: true
+
+    # ─── Global ignoreDifferences for Operator-Managed Resources ────────────────
+    # CloudNativePG operator continuously updates status, annotations, and resource
+    # fields on Cluster resources. These are normal operator behavior and should
+    # not trigger ArgoCD OutOfSync status or reconciliation.
+    #
+    # This prevents false OutOfSync alerts for apps using CNPG:
+    # backstage, coder, immich, nexus, windmill, oncall, giraffe (grafana-db), etc.
+    "resource.customizations.ignoreDifferences.postgresql.cnpg.io_Cluster": |
+      jsonPointers:
+        - /status
+        - /metadata/annotations
+        - /metadata/finalizers
+        - /metadata/generation
+        - /metadata/managedFields
+        - /spec/resources
+        - /spec/monitoring/enablePodMonitor
+        - /spec/metadata  # Pod metadata labels - operator may not apply consistently
+      jqPathExpressions:
+        # Ignore operator-specific annotations (cnpg.io/*)
+        - .metadata.annotations | to_entries | map(select(.key | startswith("cnpg.io")))
+        # Ignore kubectl annotations
+        - .metadata.annotations | to_entries | map(select(.key | startswith("kubectl.kubernetes.io")))
+
+    # Resource health overrides for Gateway API resources
+    "resource.customizations.health.gateway.networking.k8s.io_HTTPRoute": |
+      hs = {}
+      if obj.status ~= nil and obj.status.parents ~= nil then
+        for i, parent in pairs(obj.status.parents) do
+          if parent.conditions ~= nil then
+            for j, condition in pairs(parent.conditions) do
+              if condition.type == "Accepted" and condition.status == "True" then
+                hs.status = "Healthy"
+                hs.message = "HTTPRoute is accepted"
+                return hs
+              end
+            end
+          end
+        end
+      end
+      hs.status = "Progressing"
+      hs.message = "HTTPRoute status unknown"
+      return hs
+
+    # Health check for Gateway
+    "resource.customizations.health.gateway.networking.k8s.io_Gateway": |
+      hs = {}
+      if obj.status ~= nil and obj.status.conditions ~= nil then
+        for i, condition in pairs(obj.status.conditions) do
+          if condition.type == "Accepted" and condition.status == "True" then
+            hs.status = "Healthy"
+            hs.message = "Gateway is accepted"
+            return hs
+          end
+        end
+      end
+      hs.status = "Progressing"
+      hs.message = "Gateway status unknown"
+      return hs
+
+    # Better health for Deployments with PVCs and scaled-down deployments
+    "resource.customizations.health.apps_Deployment": |
+      hs = {}
+      -- Scaled to zero is healthy (intentionally disabled)
+      if obj.spec ~= nil and obj.spec.replicas == 0 then
+        hs.status = "Healthy"
+        hs.message = "Deployment scaled to zero"
+        return hs
+      end
+      if obj.status ~= nil then
+        if obj.status.availableReplicas ~= nil and obj.status.availableReplicas >= 1 then
+          hs.status = "Healthy"
+          hs.message = "Deployment has available replicas"
+          return hs
+        end
+        if obj.status.readyReplicas ~= nil and obj.status.readyReplicas >= 1 then
+          hs.status = "Healthy"
+          hs.message = "Deployment has ready replicas"
+          return hs
+        end
+      end
+      hs.status = "Progressing"
+      hs.message = "Deployment not ready"
+      return hs
+
+    # Custom health for StatefulSet with PVCs
+    "resource.customizations.health.apps_StatefulSet": |
+      hs = {}
+      if obj.status ~= nil then
+        if obj.status.readyReplicas ~= nil and obj.status.readyReplicas >= 1 then
+          hs.status = "Healthy"
+          hs.message = "StatefulSet has ready replicas"
+          return hs
+        end
+      end
+      hs.status = "Progressing"
+      hs.message = "StatefulSet not ready"
+      return hs
+
+  # RBAC configuration
+  rbac:
+    policy.default: role:readonly
+    policy.csv: |
+      # Platform admins have full access
+      g, platform-admins, role:admin
+      # Developers have read-only by default
+      g, developers, role:readonly
+      # App managers can manage applications
+      p, role:app-manager, applications, *, */*, allow
+      p, role:app-manager, repositories, get, *, allow
+      g, app-managers, role:app-manager
+
+  # ArgoCD secret configuration
+  # We manage argocd-secret via SOPS-encrypted file instead of Helm
+  # This prevents the chart from creating an empty secret that wipes our real credentials
+  secret:
+    createSecret: false
+
+# Server configuration
+server:
+  replicas: 1  # Start with 1, scale up later
+
+  # Configure for reverse proxy setup (Cloudflare Tunnel)
+  insecure: true  # Don't redirect HTTP to HTTPS (Cloudflare handles TLS)
+
+  extraArgs:
+    - --insecure  # Accept HTTP traffic from reverse proxy
+
+  # Kyverno-compliant security context
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 999
+    fsGroup: 999
+    seccompProfile:
+      type: RuntimeDefault
+
+  # Kyverno-compliant container security context
+  containerSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 999
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop:
+        - ALL
+    seccompProfile:
+      type: RuntimeDefault
+
+  resources:
+    requests:
+      cpu: 10m          # KRR: 10m
+      memory: 256Mi     # Increased: KRR was 130Mi but memory grows over time
+    limits:
+      memory: 512Mi     # Increased: OOMKilled at 130Mi after 26h uptime
+
+  # Service configuration
+  service:
+    type: ClusterIP  # Use Gateway API for ingress
+
+  # Metrics
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+      namespace: argocd
+
+  # Ingress disabled - using Gateway API
+  ingress:
+    enabled: false
+
+  # Extensions
+  extensions:
+    enabled: true
+
+# Controller configuration
+controller:
+  replicas: 1
+
+  # Kyverno-compliant security context
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 999
+    fsGroup: 999
+    seccompProfile:
+      type: RuntimeDefault
+
+  # Kyverno-compliant container security context
+  containerSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 999
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop:
+        - ALL
+    seccompProfile:
+      type: RuntimeDefault
+
+  resources:
+    requests:
+      cpu: 313m         # KRR: 313m
+      memory: 3Gi       # Increased from 2223Mi to prevent OOMKill during sync storms
+    limits:
+      memory: 4Gi       # Increased headroom for hook-heavy syncs
+
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+      namespace: argocd
+
+  # Reconciliation timeout is configured via configs.cm."timeout.reconciliation"
+  # Do not set ARGOCD_RECONCILIATION_TIMEOUT env var here - it conflicts with valueFrom
+
+# Repo server configuration
+repoServer:
+  replicas: 1
+
+  # Kyverno-compliant security context
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 999
+    fsGroup: 999
+    seccompProfile:
+      type: RuntimeDefault
+
+  # Kyverno-compliant container security context
+  containerSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 999
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: false  # Needed for KSOPS plugin installation
+    capabilities:
+      drop:
+        - ALL
+    seccompProfile:
+      type: RuntimeDefault
+
+  resources:
+    requests:
+      cpu: 651m         # KRR: 651m
+      memory: 385Mi     # KRR: 385Mi
+    limits:
+      memory: 385Mi     # KRR: 385Mi (no CPU limit per KRR)
+
+  # Custom volumes for KSOPS
+  volumes:
+    - name: custom-tools
+      emptyDir: {}
+    - name: sops-age
+      secret:
+        secretName: sops-age
+
+  # Init container to install KSOPS
+  initContainers:
+    - name: install-ksops
+      image: public.ecr.aws/docker/library/alpine:3.23
+      imagePullPolicy: IfNotPresent
+      # Kyverno-compliant security context
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 999
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: false
+        capabilities:
+          drop:
+            - ALL
+        seccompProfile:
+          type: RuntimeDefault
+      command: ["/bin/sh", "-c"]
+      args:
+        - |
+          set -e
+          echo "Installing tools..."
+
+          # Download KSOPS (using wget which is included in alpine)
+          KSOPS_VERSION="4.3.2"
+          echo "Downloading KSOPS v${KSOPS_VERSION}..."
+          wget -qO- "https://github.com/viaduct-ai/kustomize-sops/releases/download/v${KSOPS_VERSION}/ksops_${KSOPS_VERSION}_Linux_x86_64.tar.gz" | tar xz -C /custom-tools/ ksops
+
+          # Download kustomize
+          KUSTOMIZE_VERSION="5.0.3"
+          echo "Downloading kustomize v${KUSTOMIZE_VERSION}..."
+          wget -qO- "https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv${KUSTOMIZE_VERSION}/kustomize_v${KUSTOMIZE_VERSION}_linux_amd64.tar.gz" | tar xz -C /custom-tools/
+
+          # Download SOPS
+          SOPS_VERSION="3.8.1"
+          echo "Downloading SOPS v${SOPS_VERSION}..."
+          wget -qO /custom-tools/sops "https://github.com/getsops/sops/releases/download/v${SOPS_VERSION}/sops-v${SOPS_VERSION}.linux.amd64"
+
+          chmod +x /custom-tools/*
+
+          # Setup KSOPS as Kustomize plugin
+          mkdir -p /custom-tools/kustomize-plugin/viaduct.ai/v1/ksops/
+          ln -sf /usr/local/bin/ksops /custom-tools/kustomize-plugin/viaduct.ai/v1/ksops/ksops
+
+          echo "Installation complete"
+          ls -la /custom-tools/
+          echo "Plugin structure:"
+          ls -la /custom-tools/kustomize-plugin/viaduct.ai/v1/ksops/
+      volumeMounts:
+        - mountPath: /custom-tools
+          name: custom-tools
+
+  # Volume mounts for KSOPS and SOPS
+  volumeMounts:
+    - name: custom-tools
+      mountPath: /usr/local/bin/ksops
+      subPath: ksops
+    - name: custom-tools
+      mountPath: /usr/local/bin/sops
+      subPath: sops
+    - name: sops-age
+      mountPath: /home/argocd/.config/sops/age
+      readOnly: true
+    - name: custom-tools
+      mountPath: /home/argocd/.config/kustomize/plugin
+      subPath: kustomize-plugin
+
+  # Environment variables for SOPS
+  env:
+    - name: SOPS_AGE_KEY_FILE
+      value: /home/argocd/.config/sops/age/age.agekey
+    - name: XDG_CONFIG_HOME
+      value: /home/argocd/.config
+    - name: KUSTOMIZE_PLUGIN_HOME
+      value: /home/argocd/.config/kustomize/plugin
+    - name: PATH
+      value: /usr/local/bin:/usr/local/sbin:/usr/sbin:/usr/bin:/sbin:/bin
+
+  # Metrics - required for alerting
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+      namespace: argocd
+
+# Redis configuration
+redis:
+  enabled: true
+
+  # Kyverno-compliant security context
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 999
+    fsGroup: 999
+    seccompProfile:
+      type: RuntimeDefault
+
+  containerSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 999
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop:
+        - ALL
+    seccompProfile:
+      type: RuntimeDefault
+
+  # Increased after OOMKill - Redis cache grows over time (ran 20h before hitting 139MB)
+  # Previously: 133Mi - OOMKilled after 20h uptime
+  resources:
+    requests:
+      cpu: 10m
+      memory: 256Mi
+    limits:
+      memory: 256Mi
+
+# Disable Redis secret init job - we don't need Redis authentication
+# This hook causes sync issues with leftover Role/RoleBinding resources
+redisSecretInit:
+  enabled: false
+
+# ApplicationSet controller
+applicationSet:
+  enabled: true
+
+  # Kyverno-compliant security context
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 999
+    fsGroup: 999
+    seccompProfile:
+      type: RuntimeDefault
+
+  containerSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 999
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop:
+        - ALL
+    seccompProfile:
+      type: RuntimeDefault
+
+  resources:
+    requests:
+      cpu: 10m          # KRR: 10m
+      memory: 100Mi     # KRR: 100Mi
+    limits:
+      memory: 100Mi     # KRR: 100Mi (no CPU limit per KRR)
+
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+
+# Notifications controller - GitHub commit/deployment status integration
+# Requires: argocd-notifications-secret with GitHub App credentials
+# See: infrastructure/argocd/overlays/home/argocd-notifications-secret.sops.yaml
+notifications:
+  enabled: true
+
+  # Use existing SOPS-encrypted secret (don't create via Helm)
+  secret:
+    create: false
+    name: argocd-notifications-secret
+
+  # Kyverno-compliant security context
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 999
+    fsGroup: 999
+    seccompProfile:
+      type: RuntimeDefault
+
+  containerSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 999
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop:
+        - ALL
+    seccompProfile:
+      type: RuntimeDefault
+
+  resources:
+    requests:
+      cpu: 10m          # KRR: 10m
+      memory: 140Mi     # KRR: 140Mi
+    limits:
+      memory: 140Mi     # KRR: 140Mi (no CPU limit per KRR)
+
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+      namespace: argocd
+
+  argocdUrl: https://argocd.erauner.dev
+
+  # Global context available in all templates
+  context:
+    argocdUrl: https://argocd.erauner.dev
+    cluster: home
+
+  # GitHub notifier service configuration
+  # References keys from argocd-notifications-secret
+  notifiers:
+    service.github: |
+      appID: $github-appId
+      installationID: $github-installationId
+      privateKey: $github-privateKey
+
+    # ─── Argo Events Webhook Integration ───────────────────────────────────
+    # This webhook triggers Argo Workflows for post-deploy automation.
+    #
+    # CI/CD Separation:
+    #   - Jenkins: GitHub-triggered (PRs, builds, reviews)
+    #   - Argo Workflows: ArgoCD-triggered (post-deploy smoke tests)
+    #
+    # See: infrastructure/argo-workflows/README.md
+    service.webhook.argo-events: |
+      url: http://argocd-webhook-eventsource.argo-events.svc.cluster.local:12000/argocd
+      headers:
+        - name: Content-Type
+          value: application/json
+
+  # Global subscriptions - apply to all Applications
+  subscriptions:
+    - recipients:
+        - github
+      triggers:
+        - on-sync-running
+        - on-deployed
+        - on-sync-failed
+        - on-health-degraded
+    # Trigger Argo Events smoke tests when apps become healthy
+    - recipients:
+        - argo-events
+      triggers:
+        - on-app-healthy
+
+  # Triggers define when to send notifications
+  # Note: All triggers must check for nil operationState to avoid errors on apps that haven't synced
+  triggers:
+    # Sync in progress - set pending status
+    trigger.on-sync-running: |
+      - description: Application sync in progress
+        when: app.status.operationState != nil and app.status.operationState.phase in ['Running']
+        oncePer: app.status.operationState.syncResult.revision
+        send:
+          - app-sync-running
+
+    # Successful deployment - sync succeeded and app is healthy
+    trigger.on-deployed: |
+      - description: Application synced and healthy
+        when: app.status.operationState != nil and app.status.operationState.phase in ['Succeeded'] and app.status.health.status == 'Healthy'
+        oncePer: app.status.operationState.syncResult.revision
+        send:
+          - app-deployed
+
+    # Sync failed
+    trigger.on-sync-failed: |
+      - description: Application sync failed
+        when: app.status.operationState != nil and app.status.operationState.phase in ['Error', 'Failed']
+        oncePer: app.status.operationState.syncResult.revision
+        send:
+          - app-sync-failed
+
+    # Health degraded after sync
+    trigger.on-health-degraded: |
+      - description: Application health degraded
+        when: app.status.health.status == 'Degraded'
+        oncePer: app.status.sync.revision
+        send:
+          - app-health-degraded
+
+    # Argo Events webhook - trigger smoke tests when app becomes healthy
+    trigger.on-app-healthy: |
+      - description: Application is healthy - trigger smoke tests
+        when: app.status.operationState != nil and app.status.health.status == 'Healthy' and app.status.operationState.phase == 'Succeeded'
+        oncePer: app.status.operationState.syncResult.revision
+        send:
+          - app-healthy-webhook
+
+  # Templates define notification content
+  # Note: Use (default "" .field) to handle nil values, as trunc fails on nil
+  # repoURLPath + revision are required for multi-source apps since app.spec.source.repoURL is empty
+  # Multi-source apps use .revisions[] array instead of .revision string
+  # We use 'with' blocks to fallback: if .revision is empty, use .revisions[1] (git SHA in multi-source)
+  templates:
+    # Sync running - pending commit status
+    template.app-sync-running: |
+      message: |
+        Syncing to {{(default "" .app.status.operationState.syncResult.revision) | trunc 7}}{{with .app.status.operationState.syncResult.revisions}}{{index . 1 | trunc 7}}{{end}} on {{.context.cluster}}
+      github:
+        repoURLPath: erauner/homelab-k8s
+        revisionPath: "{{with .app.status.operationState.syncResult.revision}}{{.}}{{else}}{{with .app.status.operationState.syncResult.revisions}}{{index . 1}}{{end}}{{end}}"
+        status:
+          state: pending
+          label: "argocd/{{.context.cluster}}/{{.app.metadata.name}}"
+          targetURL: "{{.context.argocdUrl}}/applications/argocd/{{.app.metadata.name}}?view=tree&resource="
+
+    # Successful deployment - success commit status
+    template.app-deployed: |
+      message: |
+        Deployed {{(default "" .app.status.sync.revision) | trunc 7}}{{with .app.status.operationState.syncResult.revisions}}{{index . 1 | trunc 7}}{{end}} to {{.context.cluster}}{{if .app.spec.destination.namespace}} ({{.app.spec.destination.namespace}}){{end}}
+      github:
+        repoURLPath: erauner/homelab-k8s
+        revisionPath: "{{with .app.status.operationState.syncResult.revision}}{{.}}{{else}}{{with .app.status.operationState.syncResult.revisions}}{{index . 1}}{{end}}{{end}}"
+        status:
+          state: success
+          label: "argocd/{{.context.cluster}}/{{.app.metadata.name}}"
+          targetURL: "{{.context.argocdUrl}}/applications/argocd/{{.app.metadata.name}}?view=tree&resource="
+        # Optional: GitHub Deployment status for Deployments UI
+        # Uncomment if GitHub App has deployments:write permission
+        # deployment:
+        #   state: success
+        #   environment: "{{.context.cluster}}"
+        #   environmentURL: "{{.context.argocdUrl}}/applications/argocd/{{.app.metadata.name}}"
+        #   logURL: "{{.context.argocdUrl}}/applications/argocd/{{.app.metadata.name}}?view=tree&resource="
+        #   requiredContexts: []
+        #   autoMerge: false
+
+    # Sync failed - failure commit status
+    template.app-sync-failed: |
+      message: |
+        Sync failed on {{.context.cluster}}: {{.app.status.operationState.message}}
+      github:
+        repoURLPath: erauner/homelab-k8s
+        revisionPath: "{{with .app.status.operationState.syncResult.revision}}{{.}}{{else}}{{with .app.status.operationState.syncResult.revisions}}{{index . 1}}{{end}}{{end}}"
+        status:
+          state: failure
+          label: "argocd/{{.context.cluster}}/{{.app.metadata.name}}"
+          targetURL: "{{.context.argocdUrl}}/applications/argocd/{{.app.metadata.name}}?view=tree&resource="
+
+    # Health degraded - failure commit status
+    template.app-health-degraded: |
+      message: |
+        Health degraded on {{.context.cluster}}: {{.app.status.health.message}}
+      github:
+        repoURLPath: erauner/homelab-k8s
+        revisionPath: "{{with .app.status.sync.revision}}{{.}}{{else}}{{with .app.status.sync.revisions}}{{index . 1}}{{end}}{{end}}"
+        status:
+          state: failure
+          label: "argocd/{{.context.cluster}}/{{.app.metadata.name}}/health"
+          targetURL: "{{.context.argocdUrl}}/applications/argocd/{{.app.metadata.name}}?view=tree&resource="
+
+    # Argo Events webhook - sends app metadata for smoke test workflows
+    template.app-healthy-webhook: |
+      webhook:
+        argo-events:
+          method: POST
+          body: |
+            {
+              "app": {
+                "metadata": {
+                  "name": "{{.app.metadata.name}}",
+                  "namespace": "{{.app.metadata.namespace}}"
+                },
+                "spec": {
+                  "destination": {
+                    "namespace": "{{.app.spec.destination.namespace}}",
+                    "server": "{{.app.spec.destination.server}}"
+                  },
+                  "project": "{{.app.spec.project}}"
+                },
+                "status": {
+                  "health": {
+                    "status": "{{.app.status.health.status}}"
+                  },
+                  "sync": {
+                    "revision": "{{with .app.status.sync.revision}}{{.}}{{else}}{{with .app.status.sync.revisions}}{{index . 1}}{{end}}{{end}}",
+                    "status": "{{.app.status.sync.status}}"
+                  }
+                }
+              },
+              "context": {
+                "argocdUrl": "{{.context.argocdUrl}}",
+                "cluster": "{{.context.cluster}}"
+              }
+            }
+
+# Dex OIDC - disabled for now
+dex:
+  enabled: false

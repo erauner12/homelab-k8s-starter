@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: longhorn-frontend
+  namespace: longhorn-system
+  annotations:
+    gethomepage.dev/enabled: "true"
+    getgethomepage.dev/name: "Longhorn"
+    getgethomepage.dev/icon: "longhorn"
+    getgethomepage.dev/group: "Infrastructure"
+    getgethomepage.dev/description: "Distributed Storage"
+    getgethomepage.dev/href: "https://longhorn.erauner.dev"

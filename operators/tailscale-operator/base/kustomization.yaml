@@ -1,0 +1,24 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: tailscale
+
+# KSOPS generator for SOPS-encrypted OAuth secret (ArgoCD compatible)
+# The operator-oauth secret is expected by the Helm chart when oauth values are unset
+# It must contain keys: client_id and client_secret
+generators:
+  - secret-generator.yaml
+
+generatorOptions:
+  disableNameSuffixHash: true
+
+# ProxyClass for Cilium compatibility (force iptables mode)
+resources:
+  - proxyclass-iptables.yaml
+
+helmCharts:
+  - name: tailscale-operator
+    repo: https://pkgs.tailscale.com/helmcharts
+    version: 1.92.5
+    releaseName: tailscale-operator
+    namespace: tailscale
+    valuesFile: values/values.yaml

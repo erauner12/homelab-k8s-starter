@@ -1,0 +1,28 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ../../base
+  - argocd-oidc-secret.yaml
+  - ghcr-helm-credentials.yaml
+
+# ArgoCD Helm chart - self-managed via GitOps
+helmCharts:
+  - name: argo-cd
+    repo: https://argoproj.github.io/argo-helm
+    version: 9.3.4
+    releaseName: argocd
+    namespace: argocd
+    valuesFile: ../../base/values/values.yaml
+    includeCRDs: true
+
+# KSOPS generator for SOPS-encrypted secrets
+generators:
+  - secret-generator.yaml
+
+# Strategic merge patch for RBAC configuration
+# The Helm chart creates argocd-rbac-cm, we patch it with custom policies
+patches:
+  - path: rbac-cm-patch.yaml
+
+# GitHub Notifications: See docs/argocd/notifications.md for setup

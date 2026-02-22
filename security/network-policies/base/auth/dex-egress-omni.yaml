@@ -1,0 +1,50 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: dex-egress-omni
+  namespace: auth
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: dex
+  policyTypes:
+    - Egress
+    - Ingress
+  ingress:
+    # Allow ingress from Envoy Gateway and Cloudflared
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: network
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: envoy-gateway-system
+      ports:
+        - port: 5556
+          protocol: TCP
+  egress:
+    # Allow DNS (CoreDNS in kube-system)
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+      ports:
+        - port: 53
+          protocol: UDP
+        - port: 53
+          protocol: TCP
+    # Allow HTTPS to Auth0 and external services
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+              - 10.0.0.0/8
+              - 172.16.0.0/12
+              - 192.168.0.0/16
+      ports:
+        - port: 443
+          protocol: TCP
+    # Allow Kubernetes API access for storage backend
+    - ports:
+        - port: 6443
+          protocol: TCP

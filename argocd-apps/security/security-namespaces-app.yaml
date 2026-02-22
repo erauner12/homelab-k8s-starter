@@ -1,0 +1,33 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: security-namespaces
+  namespace: argocd
+  labels:
+    homelab.dev/layer: security
+    homelab.dev/category: namespaces
+  annotations:
+    # Run early - security namespaces needed before security workloads
+    argocd.argoproj.io/sync-wave: "-89"
+spec:
+  project: infrastructure
+  source:
+    repoURL: git@github.com:erauner/homelab-k8s.git
+    targetRevision: master
+    path: ./security/namespaces/overlays/erauner-home
+  destination:
+    server: https://kubernetes.default.svc
+  syncPolicy:
+    automated:
+      prune: false  # Never auto-delete namespaces
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=false
+    - ServerSideApply=false
+    - RespectIgnoreDifferences=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m

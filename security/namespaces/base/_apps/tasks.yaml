@@ -1,0 +1,16 @@
+# Tasks namespace - homelab-tasks automation service
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: tasks
+  labels:
+    homelab.dev/layer: automation
+    homelab.dev/managed-by: argocd
+    homelab.dev/type: task-automation
+    homelab.dev/storage-backend: truenas
+    pod-security.kubernetes.io/enforce: restricted
+  annotations:
+    homelab.dev/description: "Task automation API backed by Argo Workflows"
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/warn: restricted

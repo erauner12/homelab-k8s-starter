@@ -1,0 +1,45 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Security-layer system namespaces
+# These namespaces host security infrastructure components
+# (authentication, secrets management, security policies)
+
+resources:
+  - auth.yaml
+  - security.yaml
+  - external-secrets.yaml
+  # Migrated from infrastructure/namespaces (issue #950)
+  - argocd.yaml
+  - cert-manager.yaml
+  - cnpg-system.yaml
+  - envoy-gateway-system.yaml
+  - management.yaml
+  - network.yaml
+  - reloader-system.yaml
+  # Migrated from operators (issue #950)
+  - argo-events.yaml
+  - argo-workflows.yaml
+  - kyverno.yaml
+  - toolhive-system.yaml
+  - dragonfly-system.yaml
+  - homelab-operator-system.yaml
+  # Backup infrastructure (issues #1183, #1184, #1185, #1203)
+  - backup-system.yaml
+  - volsync-system.yaml
+  # TrueNAS CSI driver (issues #1175, #1176)
+  - democratic-csi.yaml
+  # Tailscale (VPN overlay network)
+  - tailscale.yaml
+  # SeaweedFS S3-compatible object storage
+  - storage.yaml
+
+generatorOptions:
+  disableNameSuffixHash: true
+
+# Labels for security governance
+labels:
+  - pairs:
+      homelab.dev/managed-by: argocd
+      homelab.dev/security-layer: "true"
+    includeSelectors: false

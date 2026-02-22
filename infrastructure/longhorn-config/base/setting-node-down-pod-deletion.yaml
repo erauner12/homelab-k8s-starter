@@ -1,0 +1,17 @@
+apiVersion: longhorn.io/v1beta2
+kind: Setting
+metadata:
+  name: node-down-pod-deletion-policy
+  namespace: longhorn-system
+# Automatically delete pods using Longhorn volumes when node goes down
+# This allows Kubernetes to reschedule the workload on another node
+# where Longhorn has a healthy replica.
+#
+# Options:
+#   - do-nothing: Manual intervention required (default)
+#   - delete-statefulset-pod: Only StatefulSet pods
+#   - delete-deployment-and-statefulset-pod: Both Deployment and StatefulSet pods
+#   - delete-both-statefulset-and-deployment-pod: Same as above
+#
+# Required for automatic Plex failover since it runs as a Deployment
+value: "delete-both-statefulset-and-deployment-pod"

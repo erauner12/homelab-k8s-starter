@@ -1,0 +1,17 @@
+# Coder namespace - cloud development environments
+# Migrated from CreateNamespace=true (issue #950)
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: coder
+  labels:
+    homelab.dev/layer: apps
+    homelab.dev/managed-by: argocd
+    homelab.dev/type: development
+    homelab.dev/storage-backend: truenas
+    pod-security.kubernetes.io/enforce: baseline
+  annotations:
+    homelab.dev/description: "Coder cloud development environments"
+    pod-security.kubernetes.io/audit: baseline
+    pod-security.kubernetes.io/enforce: baseline
+    pod-security.kubernetes.io/warn: baseline

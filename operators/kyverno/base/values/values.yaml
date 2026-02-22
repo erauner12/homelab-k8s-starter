@@ -1,0 +1,89 @@
+installCRDs: false
+
+# CRDs configuration
+crds:
+  # Disable Helm post-upgrade migration hook
+  # ArgoCD doesn't handle Helm hooks the same way as `helm upgrade`
+  # The hook creates RBAC resources that conflict on subsequent syncs
+  migration:
+    enabled: false
+
+admissionController:
+  replicas: 3
+  serviceMonitor:
+    enabled: true
+    interval: 30s
+    scrapeTimeout: 25s
+    # Drop metrics with dots in names + labels with dots (OTEL semantic conventions)
+    # Mimir rejects dotted metric/label names
+    metricRelabelings:
+      - sourceLabels: [__name__]
+        regex: '.*\..*'
+        action: drop
+      # Drop labels with dots (http.method, http.url, etc.)
+      - regex: '.*\..*'
+        action: labeldrop
+  container:
+    resources:
+      requests:
+        cpu: 10m          # KRR: 10m
+        memory: 160Mi     # KRR: 160Mi
+      limits:
+        memory: 160Mi     # KRR: 160Mi (no CPU limit per KRR)
+
+backgroundController:
+  replicas: 1
+  serviceMonitor:
+    enabled: true
+    interval: 30s
+    scrapeTimeout: 25s
+    metricRelabelings:
+      - sourceLabels: [__name__]
+        regex: '.*\..*'
+        action: drop
+      - regex: '.*\..*'
+        action: labeldrop
+  resources:
+    requests:
+      cpu: 10m          # KRR: 10m
+      memory: 100Mi     # KRR: 100Mi
+    limits:
+      memory: 100Mi     # KRR: 100Mi (no CPU limit per KRR)
+
+cleanupController:
+  replicas: 1
+  serviceMonitor:
+    enabled: true
+    interval: 30s
+    scrapeTimeout: 25s
+    metricRelabelings:
+      - sourceLabels: [__name__]
+        regex: '.*\..*'
+        action: drop
+      - regex: '.*\..*'
+        action: labeldrop
+  resources:
+    requests:
+      cpu: 10m          # KRR: 10m
+      memory: 128Mi     # KRR: 128Mi
+    limits:
+      memory: 128Mi     # KRR: 128Mi (no CPU limit per KRR)
+
+reportsController:
+  replicas: 1
+  serviceMonitor:
+    enabled: true
+    interval: 30s
+    scrapeTimeout: 25s
+    metricRelabelings:
+      - sourceLabels: [__name__]
+        regex: '.*\..*'
+        action: drop
+      - regex: '.*\..*'
+        action: labeldrop
+  resources:
+    requests:
+      cpu: 433m         # KRR: 433m (high CPU usage)
+      memory: 133Mi     # KRR: 133Mi
+    limits:
+      memory: 133Mi     # KRR: 133Mi (no CPU limit per KRR)

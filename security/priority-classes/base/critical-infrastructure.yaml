@@ -1,0 +1,14 @@
+# Critical infrastructure priority class
+# Created after worker1 incident (2026-01-15) where Plex I/O caused node failure
+# Usage: spec.priorityClassName: critical-infrastructure
+
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: critical-infrastructure
+  labels:
+    homelab.dev/component: scheduling
+description: "Critical infrastructure - kube-system, storage, networking"
+value: 1000000
+globalDefault: false
+preemptionPolicy: PreemptLowerPriority

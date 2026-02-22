@@ -1,0 +1,18 @@
+# Observability namespace - monitoring and observability stack
+# Migrated from infrastructure/namespaces (issue #950)
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: observability
+  labels:
+    homelab.dev/layer: apps
+    homelab.dev/managed-by: argocd
+    homelab.dev/type: observability
+    # Cloud stack uses DOKS block storage.
+    homelab.dev/storage-backend: do-block-storage
+    pod-security.kubernetes.io/enforce: privileged
+  annotations:
+    homelab.dev/description: "Observability monitoring stack (Grafana, Prometheus, Loki, etc)"
+    pod-security.kubernetes.io/audit: privileged
+    pod-security.kubernetes.io/enforce: privileged
+    pod-security.kubernetes.io/warn: privileged

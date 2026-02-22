@@ -1,0 +1,20 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Configs layer - CRs that depend on controllers
+resources:
+  - ../../base
+  - cloudflared
+  - cilium-lb  # Cilium LoadBalancer IP pools and BGP configuration
+  # Cloudflare API token now managed by ExternalSecrets from 1Password
+  # - ./secret.cloudflare-api-token-home.sops.yaml
+  - ./clusterissuer-cloudflare.yaml
+  - ./wildcard-certificate.yaml
+  - ./gateway-secret-access.yaml  # Allow envoy-gateway to access wildcard-tls secret
+
+# KSOPS generator for SOPS-encrypted secrets (ArgoCD compatible)
+generators:
+  - secret-generator.yaml
+
+generatorOptions:
+  disableNameSuffixHash: true

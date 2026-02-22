@@ -1,0 +1,19 @@
+# Valheim namespace - game server
+# Migrated from CreateNamespace=true (issue #950)
+# PSS baseline: Container uses sudo internally for steamcmd/server management
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: valheim
+  labels:
+    homelab.dev/layer: apps
+    homelab.dev/managed-by: argocd
+    homelab.dev/type: gaming
+    # Storage intent: Longhorn for game world saves
+    homelab.dev/storage-backend: longhorn
+    pod-security.kubernetes.io/enforce: baseline
+  annotations:
+    homelab.dev/description: "Valheim game server"
+    pod-security.kubernetes.io/audit: baseline
+    pod-security.kubernetes.io/enforce: baseline
+    pod-security.kubernetes.io/warn: baseline

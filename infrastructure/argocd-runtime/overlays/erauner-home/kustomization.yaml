@@ -1,0 +1,15 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  # Runtime patches (repo-server tools + ArgoCD config).
+  #
+  # Important: keep this overlay focused on runtime enablement (repo-server tools +
+  # argocd-cm flags). Networking exposure (HTTPRoute/Service) is managed by
+  # infrastructure/argocd-access, and repo credentials are created by bootstrap.
+  - ../../base
+  - argocd-oidc-secret.externalsecret.yaml
+  - argocd-rbac-cm-dex-patch.yaml
+
+patches:
+  - path: argocd-cm-dex-oidc-patch.yaml

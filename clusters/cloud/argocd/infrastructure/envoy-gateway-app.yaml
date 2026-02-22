@@ -1,0 +1,48 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: envoy-gateway
+  namespace: argocd
+  labels:
+    homelab.dev/layer: infra
+    homelab.dev/category: gateway
+  annotations:
+    # Must exist before cloudflared tunnel catch-all can route traffic.
+    argocd.argoproj.io/sync-wave: "-72"
+spec:
+  project: infrastructure
+  source:
+    repoURL: git@github.com:erauner/homelab-k8s.git
+    targetRevision: master
+    path: ./infrastructure/envoy-gateway/overlays/erauner-cloud
+  destination:
+    server: https://kubernetes.default.svc
+  ignoreDifferences:
+    # DOKS installs/manages Gateway API CRDs (via Cilium) and applies its own labels/annotations.
+    # Envoy Gateway's Helm chart also bundles Gateway API CRDs; we ignore metadata diffs to avoid
+    # permanent OutOfSync on clusters where those CRDs are provider-managed.
+    - group: apiextensions.k8s.io
+      kind: CustomResourceDefinition
+      name: httproutes.gateway.networking.k8s.io
+      jqPathExpressions:
+        - .metadata.annotations
+        - .metadata.labels
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=false
+      # Envoy Gateway CRDs (and bundled Gateway API CRDs) are large enough that
+      # client-side apply can exceed the annotations size limit due to
+      # kubectl.kubernetes.io/last-applied-configuration. SSA avoids that.
+      - ServerSideApply=true
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true
+      - RespectIgnoreDifferences=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m

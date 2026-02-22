@@ -1,0 +1,18 @@
+# windmill namespace - workflow automation platform
+# Migrated from CreateNamespace=true (issue #950)
+# Running as non-root windmill user (uid 1000) for restricted PSS compliance
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: windmill
+  labels:
+    homelab.dev/layer: apps
+    homelab.dev/managed-by: argocd
+    homelab.dev/type: automation
+    homelab.dev/storage-backend: truenas
+    pod-security.kubernetes.io/enforce: restricted
+  annotations:
+    homelab.dev/description: "Windmill workflow automation platform"
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/warn: restricted

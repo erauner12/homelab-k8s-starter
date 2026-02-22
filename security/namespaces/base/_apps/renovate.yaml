@@ -1,0 +1,16 @@
+# Renovate namespace - dependency update bot
+# Migrated from CreateNamespace=true (issue #950)
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: renovate
+  labels:
+    homelab.dev/layer: apps
+    homelab.dev/managed-by: argocd
+    homelab.dev/type: automation
+    pod-security.kubernetes.io/enforce: restricted
+  annotations:
+    homelab.dev/description: "Renovate dependency update bot"
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/warn: restricted

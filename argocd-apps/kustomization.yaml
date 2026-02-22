@@ -1,0 +1,9 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Home cluster bootstrap - references cluster-specific app-of-apps
+# For multi-cluster deployments, each cluster applies its own bootstrap:
+#   kubectl apply -k clusters/<cluster>/bootstrap/
+
+resources:
+  - ../clusters/home/bootstrap

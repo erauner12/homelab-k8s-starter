@@ -1,0 +1,20 @@
+# ——— BGPPeeringPolicy pattern: multi-speaker ———
+# This overlay expects every node to carry the label bgp=enable.
+# Talos templates add it cluster-wide. DO NOT re-add the bgp-policy-node-controlplane1
+# patch without updating docs/networking/BGP.md and rationale.
+#
+# See docs/networking/BGP.md for full pattern explanation.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - lb-pool-10.yaml
+  - lb-pool-15.yaml
+  - lb-pool-20.yaml
+  - lb-pool-30.yaml
+  - lb-pool-40.yaml
+  - bgp-policy.yaml
+  - l2-announce.yaml
+# patchesStrategicMerge:
+#  - bgp-policy-node-controlplane1.yaml
+# patchesStrategicMerge:
+#  - patch-bgp-serviceAdv.yaml

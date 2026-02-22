@@ -1,0 +1,18 @@
+# Toolbridge namespace - MCP tooling services
+# Migrated from CreateNamespace=true (issue #950)
+# Uses baseline PodSecurity - API init containers need more flexibility
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: toolbridge
+  labels:
+    homelab.dev/layer: apps
+    homelab.dev/managed-by: argocd
+    homelab.dev/type: tooling
+    homelab.dev/storage-backend: truenas
+    pod-security.kubernetes.io/enforce: baseline
+  annotations:
+    homelab.dev/description: "Toolbridge MCP services"
+    pod-security.kubernetes.io/audit: baseline
+    pod-security.kubernetes.io/enforce: baseline
+    pod-security.kubernetes.io/warn: baseline

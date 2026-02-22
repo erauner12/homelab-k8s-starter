@@ -1,0 +1,23 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Longhorn base configuration resources
+# These are shared across different site deployments
+#
+# NOTE: Longhorn backups have been replaced by VolSync (#1203, #1208)
+# VolSync provides storage-agnostic backups to Backblaze B2
+
+resources:
+  # Prometheus monitoring
+  - servicemonitor.yaml
+  # Storage settings
+  - setting-storage-overprovisioning.yaml
+  - setting-storage-minimal-available.yaml
+  - setting-node-down-pod-deletion.yaml
+  # Backup stubs - cannot be deleted, only disabled
+  # Longhorn admission webhook blocks deletion of these resources
+  - setting-backup-compression.yaml
+  - backuptarget-default.yaml
+
+generatorOptions:
+  disableNameSuffixHash: true

@@ -1,0 +1,51 @@
+installCRDs: true  # Let Helm manage CRDs
+prometheus:
+  enabled: false
+
+# DOKS/GKE-style clusters can restrict access to kube-system. The chart's global
+# leader election namespace defaults to kube-system; keep this scoped to cert-manager.
+# (Note: this must live under `global` per the chart schema.)
+global:
+  leaderElection:
+    namespace: cert-manager
+
+# Allow scheduling on controlplane nodes for certificate resilience
+# Ensures TLS certificates can be renewed even if workers are down
+tolerations:
+  - key: "node-role.kubernetes.io/control-plane"
+    operator: "Exists"
+    effect: "NoSchedule"
+
+# Main controller resources - KRR optimized
+resources:
+  requests:
+    cpu: 10m          # KRR: 10m
+    memory: 100Mi     # KRR: 100Mi
+  limits:
+    memory: 100Mi     # KRR: 100Mi (no CPU limit per KRR)
+
+# CA Injector resources - KRR optimized
+cainjector:
+  tolerations:
+    - key: "node-role.kubernetes.io/control-plane"
+      operator: "Exists"
+      effect: "NoSchedule"
+  resources:
+    requests:
+      cpu: 10m        # KRR: 10m
+      memory: 115Mi   # KRR: 115Mi
+    limits:
+      memory: 115Mi   # KRR: 115Mi (no CPU limit per KRR)
+
+# Webhook resources - KRR optimized
+webhook:
+  tolerations:
+    - key: "node-role.kubernetes.io/control-plane"
+      operator: "Exists"
+      effect: "NoSchedule"
+  resources:
+    requests:
+      cpu: 10m        # KRR: 10m
+      memory: 100Mi   # KRR: 100Mi
+    limits:
+      memory: 100Mi   # KRR: 100Mi (no CPU limit per KRR)

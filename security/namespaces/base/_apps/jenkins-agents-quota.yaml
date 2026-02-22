@@ -1,0 +1,20 @@
+# ResourceQuota to prevent runaway memory consumption during failures
+# Issue context: Failed pods accumulating caused 97% memory overcommitment
+# Increased limits to accommodate concurrent builds without constant quota failures
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: jenkins-agents-quota
+  namespace: jenkins-agents
+  labels:
+    homelab.dev/managed-by: argocd
+spec:
+  hard:
+    # Memory: Doubled to accommodate more concurrent builds
+    requests.memory: "40Gi"
+    limits.memory: "60Gi"
+    # CPU: Doubled for headroom
+    requests.cpu: "20"
+    limits.cpu: "40"
+    # Pod count: Increased to 12 for more concurrency
+    pods: "12"

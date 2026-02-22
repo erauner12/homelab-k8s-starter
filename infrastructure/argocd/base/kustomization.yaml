@@ -1,0 +1,17 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+# Don't set namespace here - let resources define their own namespaces
+
+resources:
+  # Namespace managed by security-namespaces (issue #950)
+  - httproute.yaml
+  # TEMPORARILY DISABLED: Webhook-based sync disabled for testing
+  # To re-enable: uncomment the line below
+  # - httproute-webhook.yaml
+  - repository-ssh.yaml
+  - toolbridge-api-repo-ssh.yaml
+  - projects/app-of-apps-project.yaml
+  - projects/infrastructure-project.yaml
+
+# NOTE: Helm install is defined in the environment overlays (home/cloud) so
+# values can differ per cluster without duplicating the base manifests.

@@ -1,0 +1,22 @@
+# ClusterRole for app developers to manage HTTPRoutes
+# Allows teams to create and manage their own routes without full gateway access
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: app-team-httproute-editor
+  labels:
+    homelab.dev/rbac-scope: team
+    homelab.dev/managed-by: argocd
+rules:
+- apiGroups: ["gateway.networking.k8s.io"]
+  resources: ["httproutes", "grpcroutes"]
+  verbs: ["get", "list", "watch", "create", "update", "patch"]
+- apiGroups: ["gateway.networking.k8s.io"]
+  resources: ["httproutes/status", "grpcroutes/status"]
+  verbs: ["get"]
+- apiGroups: ["gateway.networking.k8s.io"]
+  resources: ["referencegrants"]
+  verbs: ["get", "list", "watch", "create", "update", "patch"]
+- apiGroups: [""]
+  resources: ["services", "endpoints"]
+  verbs: ["get", "list", "watch"]

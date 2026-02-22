@@ -1,0 +1,46 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: app-of-apps
+  namespace: argocd
+  labels:
+    homelab.dev/managed-by: "argocd"
+    homelab.dev/layer: "meta"
+  annotations:
+    argocd.argoproj.io/sync-wave: "-30"
+    homelab.dev/description: "Dedicated project for app-of-apps parent Application"
+spec:
+  description: App-of-apps parent application project with full cluster access
+
+  sourceRepos:
+  - 'git@github.com:erauner/homelab-k8s.git'
+  - 'https://github.com/erauner/homelab-k8s.git'
+
+  # Full cluster access for managing all Applications and AppProjects
+  destinations:
+  - namespace: '*'
+    server: https://kubernetes.default.svc
+
+  # Allow all cluster resources (needed to create AppProjects, Applications, etc)
+  clusterResourceWhitelist:
+  - group: '*'
+    kind: '*'
+
+  # Allow all namespaced resources
+  namespaceResourceWhitelist:
+  - group: '*'
+    kind: '*'
+
+  roles:
+  - name: admin
+    policies:
+    - p, proj:app-of-apps:admin, applications, *, app-of-apps/*, allow
+    - p, proj:app-of-apps:admin, repositories, *, *, allow
+    groups:
+    - platform-team
+
+  - name: viewer
+    policies:
+    - p, proj:app-of-apps:viewer, applications, get, app-of-apps/*, allow
+    groups:
+    - all-users

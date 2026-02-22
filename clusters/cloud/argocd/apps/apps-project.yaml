@@ -1,0 +1,29 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: apps
+  namespace: argocd
+  labels:
+    homelab.dev/managed-by: "argocd"
+    homelab.dev/layer: "apps"
+    homelab.dev/cluster: "cloud"
+  annotations:
+    argocd.argoproj.io/sync-wave: "-25"
+    homelab.dev/description: "Cloud applications project"
+spec:
+  description: Applications deployed to the cloud cluster (non-infrastructure)
+
+  sourceRepos:
+    - 'git@github.com:erauner/homelab-k8s.git'
+    - 'ssh://git@github.com/erauner/homelab-k8s'
+
+  destinations:
+    - namespace: demo
+      server: https://kubernetes.default.svc
+
+  # No cluster-scoped resources for app workloads by default.
+  clusterResourceWhitelist: []
+
+  namespaceResourceWhitelist:
+    - group: '*'
+      kind: '*'

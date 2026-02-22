@@ -1,0 +1,40 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: argocd
+  namespace: argocd
+  labels:
+    homelab.dev/layer: "infra-platform"
+    app.kubernetes.io/name: "argocd"
+    app.kubernetes.io/component: "server"
+  annotations:
+    homelab.dev/managed-by: "argocd"
+    homelab.dev/description: "ArgoCD UI ingress route"
+    external-dns.alpha.kubernetes.io/hostname: argocd.erauner.dev
+    external-dns.alpha.kubernetes.io/target: tunnel.erauner.dev
+    external-dns.alpha.kubernetes.io/cloudflare-proxied: "true"
+spec:
+  parentRefs:
+  - name: envoy-public
+    namespace: network
+    sectionName: http
+  hostnames:
+  - argocd.erauner.dev
+  rules:
+  # Rule 0: Streaming/WebSocket paths - long-lived connections excluded from latency alerting
+  # These paths use Server-Sent Events (SSE) or WebSocket for real-time updates
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /api/v1/stream
+    backendRefs:
+    - name: argocd-server
+      port: 80
+  # Rule 1: All other traffic - normal API/UI requests monitored for latency
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /
+    backendRefs:
+    - name: argocd-server
+      port: 80

@@ -1,0 +1,51 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Application-layer namespaces
+# These are namespaces for user-facing applications
+# Migrated from CreateNamespace=true (issue #950)
+
+resources:
+  - ai.yaml
+  - auth-system.yaml
+  - backstage.yaml
+  - coder.yaml
+  - docs.yaml
+  - finance.yaml
+  - git.yaml
+  - homarr.yaml
+  - homepage.yaml
+  - immich.yaml
+  - knowledge.yaml
+  - krr.yaml
+  - media.yaml
+  - mergeable.yaml
+  - n8n.yaml
+  - oncall.yaml
+  - plane.yaml
+  - registry.yaml
+  - renovate.yaml
+  - robusta.yaml
+  - tasks.yaml
+  - tasktrove.yaml
+  - toolbridge.yaml
+  - valheim.yaml
+  - vikunja.yaml
+  - windmill.yaml
+  # Migrated from infrastructure/namespaces (issue #950)
+  - coder-workspaces.yaml
+  - devops.yaml
+  - jenkins.yaml
+  - jenkins-agents.yaml
+  - jenkins-agents-quota.yaml
+  - kasm-agents.yaml
+  - kasm-workspaces.yaml
+  - observability.yaml
+  - opentelemetry.yaml
+  - plane-staging.yaml
+  - ssh-gateway.yaml
+  - teleport.yaml
+  # Test application namespaces for CI/CD validation
+  - tenant-123-prod.yaml
+  - tenant-456-prod.yaml
+  - tenant-789-prod.yaml

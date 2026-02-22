@@ -1,0 +1,19 @@
+apiVersion: longhorn.io/v1beta2
+kind: Setting
+metadata:
+  name: storage-minimal-available-percentage
+  namespace: longhorn-system
+# SAFETY NET: Minimum percentage of disk space that must remain free
+# When available space falls below this, Longhorn will:
+# - Stop scheduling new replicas to the node
+# - NOT auto-evict existing data (that's storage-over-provisioning-percentage)
+#
+# This prevents disk exhaustion by blocking new writes when space is critically low.
+# Combined with storage-over-provisioning-percentage (125%), this provides a
+# two-tier defense:
+# - Tier 1 (soft): Over-provisioning limit blocks excessive PVC scheduling
+# - Tier 2 (hard): Minimal available prevents actual disk exhaustion
+#
+# Set to 15% - leaves ~15GB free on 100GB disks for OS operations and safety
+# Default is 25%, reduced for homelab with aggressive retention settings
+value: "15"

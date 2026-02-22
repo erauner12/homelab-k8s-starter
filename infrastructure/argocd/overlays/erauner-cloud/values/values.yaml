@@ -1,0 +1,170 @@
+# Cloud ArgoCD Helm values (minimal, converge with homelab where it matters).
+#
+# Goals:
+# - enable KSOPS/SOPS in repo-server (so kustomize `viaduct.ai/v1 ksops` generators work)
+# - keep ArgoCD configured for your GitOps repo structure
+# - avoid enabling home-only integrations (Dex/Auth0/OIDC) in cloud for now
+
+global:
+  domain: argocd.erauner.cloud
+  logging:
+    level: info
+    format: json
+
+# Avoid Helm hook churn during ArgoCD chart upgrades.
+# The chart's redisSecretInit hook uses hook-delete-policy=before-hook-creation,
+# which can race during apply and wedge upgrades in PreSync.
+redisSecretInit:
+  enabled: false
+
+configs:
+  params:
+    "application.namespaces": "*"
+    "server.disable.helm.dependency.build": "false"
+    "controller.k8s.client.qps": "150"
+    "controller.k8s.client.burst": "300"
+
+  cm:
+    # Required for KSOPS generators and local helmCharts in kustomize.
+    "kustomize.buildOptions": "--load-restrictor=LoadRestrictionsNone --enable-helm --enable-alpha-plugins --enable-exec"
+    "url": "https://argocd.erauner.cloud"
+    "users.anonymous.enabled": "false"
+    "application.resourceTrackingMethod": "annotation+label"
+
+    "resource.exclusions": |
+      - apiGroups:
+        - events.k8s.io
+        - ""
+        kinds:
+        - Event
+
+    "resource.inclusions": ""
+
+    "resource.compareoptions": |
+      ignoreAggregatedRoles: true
+      ignoreDifferencesOnResourceUpdates: true
+
+  rbac:
+    policy.default: role:none
+
+  # Prevent Helm from wiping argocd-secret credentials.
+  secret:
+    createSecret: false
+
+# Resource requests for cloud (minimal but safe)
+controller:
+  resources:
+    requests:
+      cpu: 50m
+      memory: 256Mi
+    limits:
+      memory: 512Mi
+
+server:
+  resources:
+    requests:
+      cpu: 10m
+      memory: 128Mi
+    limits:
+      memory: 256Mi
+
+repoServer:
+  resources:
+    requests:
+      cpu: 20m
+      memory: 128Mi
+    limits:
+      memory: 256Mi
+  # Needed for KSOPS plugin installation.
+  containerSecurityContext:
+    readOnlyRootFilesystem: false
+
+  # Custom volumes for KSOPS + age key.
+  volumes:
+    - name: custom-tools
+      emptyDir: {}
+    - name: sops-age
+      secret:
+        secretName: sops-age
+
+  initContainers:
+    - name: install-ksops
+      image: public.ecr.aws/docker/library/alpine:3.23
+      imagePullPolicy: IfNotPresent
+      command: ["/bin/sh", "-c"]
+      args:
+        - |
+          set -e
+          echo "Installing tools..."
+
+          apk add --no-cache ca-certificates curl tar
+
+          KSOPS_VERSION="4.3.2"
+          curl -fsSL "https://github.com/viaduct-ai/kustomize-sops/releases/download/v${KSOPS_VERSION}/ksops_${KSOPS_VERSION}_Linux_x86_64.tar.gz" | tar xz -C /custom-tools/ ksops
+
+          SOPS_VERSION="3.8.1"
+          curl -fsSL -o /custom-tools/sops "https://github.com/getsops/sops/releases/download/v${SOPS_VERSION}/sops-v${SOPS_VERSION}.linux.amd64"
+
+          chmod +x /custom-tools/*
+
+          mkdir -p /custom-tools/kustomize-plugin/viaduct.ai/v1/ksops/
+          ln -sf /usr/local/bin/ksops /custom-tools/kustomize-plugin/viaduct.ai/v1/ksops/ksops
+      volumeMounts:
+        - name: custom-tools
+          mountPath: /custom-tools
+
+  volumeMounts:
+    - name: custom-tools
+      mountPath: /usr/local/bin/ksops
+      subPath: ksops
+    - name: custom-tools
+      mountPath: /usr/local/bin/sops
+      subPath: sops
+    - name: sops-age
+      mountPath: /home/argocd/.config/sops/age
+      readOnly: true
+    - name: custom-tools
+      mountPath: /home/argocd/.config/kustomize/plugin
+      subPath: kustomize-plugin
+
+  env:
+    - name: SOPS_AGE_KEY_FILE
+      value: /home/argocd/.config/sops/age/age.agekey
+    - name: XDG_CONFIG_HOME
+      value: /home/argocd/.config
+    - name: KUSTOMIZE_PLUGIN_HOME
+      value: /home/argocd/.config/kustomize/plugin
+    - name: PATH
+      value: /usr/local/bin:/usr/local/sbin:/usr/sbin:/usr/bin:/sbin:/bin
+
+redis:
+  resources:
+    requests:
+      cpu: 10m
+      memory: 64Mi
+    limits:
+      memory: 128Mi
+
+dex:
+  resources:
+    requests:
+      cpu: 10m
+      memory: 64Mi
+    limits:
+      memory: 128Mi
+
+applicationSet:
+  resources:
+    requests:
+      cpu: 10m
+      memory: 64Mi
+    limits:
+      memory: 128Mi
+
+notifications:
+  resources:
+    requests:
+      cpu: 10m
+      memory: 64Mi
+    limits:
+      memory: 128Mi
