@@ -382,7 +382,7 @@ repoServer:
           wget -qO- "https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv${KUSTOMIZE_VERSION}/kustomize_v${KUSTOMIZE_VERSION}_linux_amd64.tar.gz" | tar xz -C /custom-tools/
 
           # Download SOPS
-          SOPS_VERSION="3.8.1"
+          SOPS_VERSION="3.10.2"
           echo "Downloading SOPS v${SOPS_VERSION}..."
           wget -qO /custom-tools/sops "https://github.com/getsops/sops/releases/download/v${SOPS_VERSION}/sops-v${SOPS_VERSION}.linux.amd64"
 

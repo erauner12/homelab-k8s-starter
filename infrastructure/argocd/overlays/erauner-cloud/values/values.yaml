@@ -102,7 +102,7 @@ repoServer:
           KSOPS_VERSION="4.3.2"
           curl -fsSL "https://github.com/viaduct-ai/kustomize-sops/releases/download/v${KSOPS_VERSION}/ksops_${KSOPS_VERSION}_Linux_x86_64.tar.gz" | tar xz -C /custom-tools/ ksops
 
-          SOPS_VERSION="3.8.1"
+          SOPS_VERSION="3.10.2"
           curl -fsSL -o /custom-tools/sops "https://github.com/getsops/sops/releases/download/v${SOPS_VERSION}/sops-v${SOPS_VERSION}.linux.amd64"
 
           chmod +x /custom-tools/*
