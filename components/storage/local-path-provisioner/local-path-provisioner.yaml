@@ -128,5 +128,5 @@ metadata:
     storageclass.kubernetes.io/is-default-class: "true"
 provisioner: rancher.io/local-path
 allowVolumeExpansion: true
-reclaimPolicy: Delete
+reclaimPolicy: Retain
 volumeBindingMode: WaitForFirstConsumer
