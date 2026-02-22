@@ -19,9 +19,9 @@ The Tailscale operator:
 3. Configure the client:
    - **Description**: `k8s-operator`
    - **Scopes**:
-     - ✅ Devices: Core (Read & Write)
-     - ✅ Auth Keys (Read & Write)
-     - ✅ DNS (Read & Write) - optional, for MagicDNS
+     - [OK] Devices: Core (Read & Write)
+     - [OK] Auth Keys (Read & Write)
+     - [OK] DNS (Read & Write) - optional, for MagicDNS
    - **Tags**: `tag:k8s-operator`
 4. Copy the **Client ID** and **Client Secret**
 

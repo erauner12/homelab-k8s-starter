@@ -44,14 +44,14 @@ configs:
     "controller.diff.cache.expiration": "60m"
 
   cm:
-    # Kustomize build options to match Flux behavior and enable KSOPS
+    # Kustomize build options to match ArgoCD behavior and enable KSOPS
     # --enable-exec is required for KSOPS exec plugins to work
     "kustomize.buildOptions": "--load-restrictor=LoadRestrictionsNone --enable-helm --enable-alpha-plugins --enable-exec"
     # URL for the ArgoCD server
     "url": "https://argocd.erauner.dev"
     # Disable anonymous access
     "users.anonymous.enabled": "false"
-    # Resource tracking method (matches Flux-style)
+    # Resource tracking method (matches ArgoCD style)
     "application.resourceTrackingMethod": "annotation+label"
 
     # Reconciliation settings

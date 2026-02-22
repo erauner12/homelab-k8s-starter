@@ -15,14 +15,14 @@ This document captures common issues encountered during application deployments 
 
 **Solution**:
 ```yaml
-# ✅ Correct patch format
+# [OK] Correct patch format
 patches:
   - path: my-patch.yaml
     target:
       kind: HelmRelease
       name: my-app
 
-# ❌ Incorrect - missing target
+# [ERR] Incorrect - missing target
 patches:
   - path: my-patch.yaml
 ```

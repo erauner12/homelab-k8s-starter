@@ -42,19 +42,19 @@ NC='\033[0m' # No Color
 
 # Helper functions
 log_info() {
-    echo -e "${BLUE}ℹ️  $1${NC}" >&2
+    echo -e "${BLUE}[INFO] $1${NC}" >&2
 }
 
 log_success() {
-    echo -e "${GREEN}✅ $1${NC}" >&2
+    echo -e "${GREEN}[OK] $1${NC}" >&2
 }
 
 log_warning() {
-    echo -e "${YELLOW}⚠️  $1${NC}" >&2
+    echo -e "${YELLOW}[WARN] $1${NC}" >&2
 }
 
 log_error() {
-    echo -e "${RED}❌ $1${NC}" >&2
+    echo -e "${RED}[ERR] $1${NC}" >&2
 }
 
 # Encrypt a plaintext yaml file using explicit flags instead of creation rules.
@@ -255,7 +255,7 @@ cmd_search_all() {
 
             if [[ -n "$matches" ]]; then
                 found_files+=("$rel_path")
-                echo "📄 $rel_path:"
+                echo "[FILE] $rel_path:"
                 echo "$matches" | sed 's/^/    /'
                 echo
             fi

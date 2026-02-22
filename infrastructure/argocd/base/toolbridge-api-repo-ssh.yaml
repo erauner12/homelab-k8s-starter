@@ -9,7 +9,7 @@ type: Opaque
 stringData:
   type: git
   url: git@github.com:erauner12/toolbridge-api.git
-  # SSH key from Flux's secret (same as homelab-k8s)
+  # SSH key from repository deploy secret (same as homelab-k8s)
   sshPrivateKey: |
     -----BEGIN OPENSSH PRIVATE KEY-----
     b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW

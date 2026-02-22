@@ -9,7 +9,7 @@ type: Opaque
 stringData:
   type: git
   url: git@github.com:erauner/homelab-k8s.git
-  # SSH key from Flux's secret
+  # SSH key from repository deploy secret
   sshPrivateKey: |
     -----BEGIN OPENSSH PRIVATE KEY-----
     b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
