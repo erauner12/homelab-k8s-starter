@@ -21,4 +21,3 @@ spec:
     syncOptions:
       - CreateNamespace=false
       - ServerSideApply=true
-      - Replace=true
