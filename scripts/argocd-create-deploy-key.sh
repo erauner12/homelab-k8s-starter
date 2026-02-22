@@ -39,7 +39,7 @@ echo "================================================"
 echo "GitHub Instructions:"
 echo "================================================"
 echo ""
-echo "1. Go to: https://github.com/erauner/homelab-k8s/settings/keys/new"
+echo "1. Go to: https://github.com/erauner12/homelab-k8s-starter/settings/keys/new"
 echo "2. Title: ArgoCD Deploy Key (homelab-k8s)"
 echo "3. Key: (paste the public key above)"
 echo "4. [OK] Allow write access: NO (read-only is sufficient)"
@@ -78,7 +78,7 @@ metadata:
 type: Opaque
 stringData:
   type: git
-  url: git@github.com:erauner/homelab-k8s.git
+  url: git@github.com:erauner12/homelab-k8s-starter.git
   sshPrivateKey: |
 $(sed 's/^/    /' "$KEY_PATH")
 EOF
@@ -95,7 +95,7 @@ echo "================================================"
 echo ""
 
 echo "After adding the deploy key to GitHub, verify with:"
-echo "kubectl exec -n argocd deployment/argocd-repo-server -- argocd-repo-server repo test git@github.com:erauner/homelab-k8s.git"
+echo "kubectl exec -n argocd deployment/argocd-repo-server -- argocd-repo-server repo test git@github.com:erauner12/homelab-k8s-starter.git"
 echo ""
 
 echo "================================================"
@@ -106,5 +106,5 @@ echo "Once verified working, you can remove the old repository configuration:"
 echo "kubectl delete secret repo-homelab-k8s -n argocd --ignore-not-found"
 echo ""
 echo "And optionally remove the previous deploy key from GitHub:"
-echo "https://github.com/erauner/homelab-k8s/settings/keys"
+echo "https://github.com/erauner12/homelab-k8s-starter/settings/keys"
 echo ""

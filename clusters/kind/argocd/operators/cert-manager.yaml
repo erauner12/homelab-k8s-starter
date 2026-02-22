@@ -9,7 +9,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/erauner12/homelab-k8s-starter.git
-    targetRevision: master
+    targetRevision: main
     path: operators/cert-manager/overlays/erauner-cloud
   destination:
     server: https://kubernetes.default.svc

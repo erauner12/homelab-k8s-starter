@@ -9,7 +9,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/erauner12/homelab-k8s-starter.git
-    targetRevision: master
+    targetRevision: main
     path: clusters/kind/argocd/apps
   destination:
     server: https://kubernetes.default.svc

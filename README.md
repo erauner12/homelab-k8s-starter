@@ -24,7 +24,7 @@ This repository intentionally uses ArgoCD only.
 See `docs/KIND.md` for details.
 
 ## Cloud/bootstrap workflow
-Use the cluster app-of-apps manifests under `clusters/` and update repo URLs, domain values, and secrets for your environment.
+Use the cluster app-of-apps manifests under `clusters/` and configure repository credentials and secrets from `docs/SECRETS.md`.
 
 ## Notes
 - Keep secret files as templates only in Git.

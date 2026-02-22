@@ -23,10 +23,10 @@ kubectl wait --for=condition=Ready nodes --all --timeout=180s
 
 echo "[INFO] installing ArgoCD core"
 kubectl create namespace argocd --dry-run=client -o yaml | kubectl apply -f -
-kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+kubectl apply --server-side -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 kubectl -n argocd rollout status deploy/argocd-server --timeout=300s
 kubectl -n argocd rollout status deploy/argocd-repo-server --timeout=300s
-kubectl -n argocd rollout status deploy/argocd-application-controller --timeout=300s
+kubectl -n argocd rollout status statefulset/argocd-application-controller --timeout=300s
 
 echo "[INFO] applying kind bootstrap applications"
 kubectl apply -k clusters/kind/bootstrap
