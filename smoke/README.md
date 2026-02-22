@@ -29,3 +29,7 @@ Environment:
 - `APP_TIMEOUT_SECONDS` (default `600`)
 - `POD_TIMEOUT_SECONDS` (default `300`)
 - `POLL_SECONDS` (default `5`)
+- `SMOKE_COMMON_NETWORKING` (default `auto`)
+  - `auto`: run shared Cloudflare/Tailscale networking gates only when required secrets are present
+  - `always`: always run shared networking gates
+  - `never`: skip shared networking gates

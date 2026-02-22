@@ -13,10 +13,14 @@ apps_optional:
   - argocd-runtime
   - argocd-projects
   - envoy-gateway
+
+apps_common_networking_required:
   - tailscale-operator
   - external-dns
   - cloudflared-apps
   - exposure-demo
+
+apps_common_networking_optional:
   - openclaw
 
 namespaces_required:
@@ -25,15 +29,19 @@ namespaces_required:
   - demo
 
 namespaces_optional:
+  - ai
+
+namespaces_common_networking_required:
   - network
   - tailscale
-  - ai
 
 pods_required_namespaces:
   - cert-manager
   - demo
 
 pods_optional_namespaces:
+  - ai
+
+pods_common_networking_required_namespaces:
   - network
   - tailscale
-  - ai
