@@ -17,3 +17,9 @@ helmCharts:
     releaseName: tailscale-operator
     namespace: tailscale
     valuesFile: values/values.yaml
+
+patches:
+  - path: patch-operator-env-tags.yaml
+    target:
+      kind: Deployment
+      name: operator
