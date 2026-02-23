@@ -19,6 +19,7 @@ This starter contains only ArgoCD-focused helper scripts.
 - `argocd-get-admin.sh`: print ArgoCD admin credentials for the selected cluster context
 - `argocd-ui.sh`: port-forward ArgoCD UI and print admin credentials
 - `kube-contexts.sh`: list kube contexts relevant to this starter repo (`--verify` checks API reachability)
+- `audit-path-usage.sh`: audit path references from active entrypoints (clusters/scripts/smoke) to detect likely stale directories
 - `argocd-create-deploy-key.sh`: creates repository deploy key and ArgoCD repo secret
 - `dns-status.sh`: list HTTPRoute and Tailscale DNS status for the active cluster
 - `openclaw-access.sh`: compatibility wrapper to `scripts/openclaw/access.sh`

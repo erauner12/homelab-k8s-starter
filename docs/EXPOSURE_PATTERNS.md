@@ -26,13 +26,12 @@ Tailscale route pattern:
 - TLS hostname entry in Ingress spec
 
 ## Deploy for testing
-The Argo app manifest is provided as optional:
+The Argo app manifest is part of the standard cloud apps set:
 - `clusters/cloud/argocd/apps/exposure-demo-app.yaml`
-- `clusters/cloud/argocd/apps/kustomization.optional.yaml`
 
-Apply it with:
+To re-apply cloud apps:
 ```bash
-kubectl apply -k clusters/cloud/argocd/apps/kustomization.optional.yaml
+kubectl apply -k clusters/cloud/argocd/apps
 ```
 
 ## Notes

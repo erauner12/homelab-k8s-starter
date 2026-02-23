@@ -25,13 +25,13 @@ kubectl -n network create secret generic cloudflared-apps-token \
   --dry-run=client -o yaml | kubectl apply -f -
 ```
 
-## 3. Enable optional cloudflared app in ArgoCD
-The app manifest is already present:
+## 3. Ensure cloudflared app is present in ArgoCD
+The app manifest is part of the default cloud operators set:
 - `clusters/cloud/argocd/operators/cloudflared-apps-app.yaml`
 
-To apply optional apps:
+To re-apply if needed:
 ```bash
-kubectl apply -k clusters/cloud/argocd/operators/kustomization.optional.yaml
+kubectl apply -k clusters/cloud/argocd/operators
 ```
 
 ## 4. Verify
